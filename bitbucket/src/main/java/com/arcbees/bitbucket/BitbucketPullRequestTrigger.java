@@ -22,7 +22,6 @@ import jetbrains.buildServer.serverSide.BatchTrigger;
 import jetbrains.buildServer.serverSide.BuildCustomizer;
 import jetbrains.buildServer.serverSide.BuildCustomizerFactory;
 import jetbrains.buildServer.serverSide.CustomDataStorage;
-import jetbrains.buildServer.serverSide.SQueuedBuild;
 import jetbrains.buildServer.serverSide.TriggerTask;
 
 public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
@@ -52,9 +51,9 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
         String repositoryOwner = propertiesHelper.getRepositoryOwner();
         String repositoryName = propertiesHelper.getRepositoryName();
 
-        BitbucketApi bitbucketApi = apiFactory.create(userName, password);
+        BitbucketApi bitbucketApi = apiFactory.create(userName, password, repositoryOwner, repositoryName);
         try {
-            PullRequests pullRequests = bitbucketApi.getOpenedPullRequests(repositoryOwner, repositoryName);
+            PullRequests pullRequests = bitbucketApi.getOpenedPullRequests();
             CustomDataStorage dataStorage = context.getCustomDataStorage();
 
             List<TriggerTask> triggerTasks = Lists.newArrayList();
@@ -71,8 +70,7 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                 dataStorage.putValue(pullRequestKey, source.getCommit().getHash());
             }
 
-            List<SQueuedBuild> queuedBuilds = batchTrigger.processTasks(triggerTasks,
-                    triggerDescriptor.getTriggerName());
+            batchTrigger.processTasks(triggerTasks, triggerDescriptor.getTriggerName());
         } catch (IOException e) {
             e.printStackTrace();
         }

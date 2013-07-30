@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.codec.CharEncoding;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -17,6 +18,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
@@ -38,21 +40,26 @@ public class BitbucketApiImpl implements BitbucketApi {
     private final HttpClientWrapper httpClient;
     private final Gson gson;
     private final BitbucketApiPaths apiPaths;
+    private final String repositoryOwner;
+    private final String repositoryName;
     private final UsernamePasswordCredentials credentials;
 
     public BitbucketApiImpl(HttpClientWrapper httpClient,
                             BitbucketApiPaths apiPaths,
                             String userName,
-                            String password) {
+                            String password,
+                            String repositoryOwner,
+                            String repositoryName) {
         this.httpClient = httpClient;
         this.apiPaths = apiPaths;
+        this.repositoryOwner = repositoryOwner;
+        this.repositoryName = repositoryName;
         this.credentials = new UsernamePasswordCredentials(userName, password);
         this.gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateTypeAdapter()).create();
     }
 
     @Override
-    public PullRequests getOpenedPullRequests(String repositoryOwner,
-                                              String repositoryName) throws IOException {
+    public PullRequests getOpenedPullRequests() throws IOException {
         String requestUrl = apiPaths.getOpenedPullRequests(repositoryOwner, repositoryName);
 
         HttpGet request = new HttpGet(requestUrl);
@@ -61,9 +68,9 @@ public class BitbucketApiImpl implements BitbucketApi {
     }
 
     @Override
-    public PullRequest getPullRequestForBranch(String repositoryOwner, String repositoryName, final String branchName)
+    public PullRequest getPullRequestForBranch(final String branchName)
             throws IOException {
-        PullRequests pullRequests = getOpenedPullRequests(repositoryOwner, repositoryName);
+        PullRequests pullRequests = getOpenedPullRequests();
 
         return Iterables.tryFind(pullRequests.getPullRequests(), new Predicate<PullRequest>() {
             @Override
@@ -78,12 +85,10 @@ public class BitbucketApiImpl implements BitbucketApi {
     }
 
     @Override
-    public void postComment(String ownerName,
-                            String repoName,
-                            Integer pullRequestId,
+    public void postComment(Integer pullRequestId,
                             String comment) throws IOException {
 
-        String requestUrl = apiPaths.addComment(ownerName, repoName, pullRequestId);
+        String requestUrl = apiPaths.addComment(repositoryOwner, repositoryName, pullRequestId);
 
         HttpPost request = new HttpPost(requestUrl);
 
@@ -95,9 +100,16 @@ public class BitbucketApiImpl implements BitbucketApi {
         includeAuthentication(request);
         setDefaultHeaders(request);
 
-        HttpResponse execute = httpClient.execute(request);
-        if (execute.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
-            throw new IOException("Failed to complete request to Bitbucket. Status: " + execute.getStatusLine());
+        HttpResponse response = null;
+        try {
+            response = httpClient.execute(request);
+            if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
+                throw new IOException("Failed to complete request to Bitbucket. Status: " + response.getStatusLine());
+            }
+        } finally {
+            if (response != null) {
+                EntityUtils.consumeQuietly(response.getEntity());
+            }
         }
     }
 
@@ -130,7 +142,7 @@ public class BitbucketApiImpl implements BitbucketApi {
     private <T> T readEntity(Class<T> clazz, HttpEntity entity) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         entity.writeTo(outputStream);
-        String json = outputStream.toString("utf-8");
+        String json = outputStream.toString(CharEncoding.UTF_8);
 
         return gson.fromJson(json, clazz);
     }
@@ -144,7 +156,7 @@ public class BitbucketApiImpl implements BitbucketApi {
     }
 
     private void setDefaultHeaders(HttpUriRequest request) {
-        request.setHeader(new BasicHeader(HttpHeaders.ACCEPT_ENCODING, "UTF-8"));
-        request.setHeader(new BasicHeader(HttpHeaders.ACCEPT, "application/json"));
+        request.setHeader(new BasicHeader(HttpHeaders.ACCEPT_ENCODING, CharEncoding.UTF_8));
+        request.setHeader(new BasicHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()));
     }
 }

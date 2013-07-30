@@ -21,7 +21,7 @@ import jetbrains.buildServer.version.ServerVersionHolder;
 
 public class HttpClientWrapperImpl implements HttpClientWrapper {
     private static final int RETRY_COUNT = 3;
-    private static final int TIMEOUT = 300 * 1000;
+    private static final int TIMEOUT = 30 * 1000;
 
     private final HttpClient httpClient;
 
@@ -64,9 +64,7 @@ public class HttpClientWrapperImpl implements HttpClientWrapper {
         }
     }
 
-
     public void shutdown() {
         httpClient.getConnectionManager().shutdown();
     }
-
 }

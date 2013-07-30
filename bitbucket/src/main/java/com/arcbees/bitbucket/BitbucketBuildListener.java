@@ -49,24 +49,27 @@ public class BitbucketBuildListener {
 
     private void onBuildFinished(SRunningBuild build) throws IOException {
         SBuildType buildType = build.getBuildType();
-        if (buildType == null) return;
+        if (buildType == null) {
+            return;
+        }
 
         for (BuildTriggerDescriptor trigger : buildType.getResolvedSettings().getBuildTriggersCollection()) {
-            if (!trigger.getType().equals(BitbucketPullRequestFeature.NAME)) continue;
+            if (!trigger.getType().equals(BitbucketPullRequestFeature.NAME)) {
+                continue;
+            }
 
             PropertiesHelper propertiesHelper = new PropertiesHelper(trigger.getProperties(), constants);
             Branch branch = build.getBranch();
             if (branch != null) {
-                BitbucketApi bitbucketApi = bitbucketApiFactory.create(propertiesHelper.getUserName(),
-                        propertiesHelper.getPassword());
-                String repositoryOwner = propertiesHelper.getRepositoryOwner();
-                String repositoryName = propertiesHelper.getRepositoryName();
+                BitbucketApi bitbucketApi = bitbucketApiFactory.create(
+                        propertiesHelper.getUserName(),
+                        propertiesHelper.getPassword(),
+                        propertiesHelper.getRepositoryOwner(),
+                        propertiesHelper.getRepositoryName());
 
-                PullRequest pullRequest = bitbucketApi.getPullRequestForBranch(repositoryOwner,
-                        repositoryName, branch.getName());
+                PullRequest pullRequest = bitbucketApi.getPullRequestForBranch(branch.getName());
 
-                bitbucketApi.postComment(repositoryOwner, repositoryName, pullRequest.getId(),
-                        getComment(build));
+                bitbucketApi.postComment(pullRequest.getId(), getComment(build));
             } else {
                 LOGGER.severe("Unknown branch name");
             }

@@ -16,7 +16,10 @@ public class BitbucketApiFactoryImpl implements BitbucketApiFactory {
 
     @Override
     public BitbucketApi create(String userName,
-                               String password) {
-        return new BitbucketApiImpl(httpClient, new BitbucketApiPaths(constants.getServerUrl()), userName, password);
+                               String password,
+                               String repoOwner,
+                               String repoName) {
+        return new BitbucketApiImpl(httpClient, new BitbucketApiPaths(constants.getServerUrl()),
+                userName, password, repoOwner, repoName);
     }
 }

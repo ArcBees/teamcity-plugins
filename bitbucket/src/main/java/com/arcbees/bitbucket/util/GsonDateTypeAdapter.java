@@ -15,6 +15,7 @@ public class GsonDateTypeAdapter implements JsonDeserializer<Date> {
     private static final DateFormat DATE_FORMAT = SimpleDateFormat.getDateTimeInstance();
     private static final DateFormat CUSTOM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
 
+    @Override
     public Date deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
         String value = json.getAsJsonPrimitive().getAsString();
 

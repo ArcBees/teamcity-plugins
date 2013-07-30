@@ -24,8 +24,8 @@ public class BitbucketPropertiesProcessor implements PropertiesProcessor {
 
         checkNotEmpty(properties, constants.getUserNameKey(), "Username must be specified", result);
         checkNotEmpty(properties, constants.getPasswordKey(), "Password must be specified", result);
-        checkNotEmpty(properties, constants.getRepositoryNameKey(), "Repository name must be specified", result);
         checkNotEmpty(properties, constants.getRepositoryOwnerKey(), "Repository owner must be specified", result);
+        checkNotEmpty(properties, constants.getRepositoryNameKey(), "Repository name must be specified", result);
 
         return result;
     }

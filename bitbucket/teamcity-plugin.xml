@@ -10,7 +10,7 @@
     <vendor>
       <name>ArcBees</name>
       <url>http://www.arcbees.com</url>
-      <logo></logo>
+      <logo/>
     </vendor>
   </info>
   <deployment use-separate-classloader="true" />
