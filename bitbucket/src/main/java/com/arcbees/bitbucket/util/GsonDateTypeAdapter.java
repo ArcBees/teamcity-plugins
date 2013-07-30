@@ -25,7 +25,7 @@ public class GsonDateTypeAdapter implements JsonDeserializer<Date> {
             try {
                 return CUSTOM_DATE_FORMAT.parse(value);
             } catch (ParseException e1) {
-                throw new RuntimeException(e1);
+                throw new JsonParseException(e1);
             }
         }
     }
