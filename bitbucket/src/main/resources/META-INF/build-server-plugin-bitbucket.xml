@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="constructor">
+    <bean class="com.arcbees.bitbucket.api.impl.BitbucketApiFactoryImpl"/>
+    <bean class="com.arcbees.bitbucket.api.impl.HttpClientWrapperImpl" destroy-method="shutdown"/>
+
+    <bean class="com.arcbees.bitbucket.Constants"/>
+    <bean class="com.arcbees.bitbucket.BitbucketBuildListener"/>
+    <bean class="com.arcbees.bitbucket.BitbucketPropertiesProcessor"/>
+    <bean class="com.arcbees.bitbucket.BitbucketPullRequestTrigger"/>
+    <bean class="com.arcbees.bitbucket.BitbucketPullRequestFeature"/>
+</beans>
