@@ -49,12 +49,10 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
         Map<String, String> properties = triggerDescriptor.getProperties();
 
         PropertiesHelper propertiesHelper = new PropertiesHelper(properties, constants);
-        String userName = propertiesHelper.getUserName();
-        String password = propertiesHelper.getPassword();
         String repositoryOwner = propertiesHelper.getRepositoryOwner();
         String repositoryName = propertiesHelper.getRepositoryName();
 
-        BitbucketApi bitbucketApi = apiFactory.create(userName, password, repositoryOwner, repositoryName);
+        BitbucketApi bitbucketApi = apiFactory.create(propertiesHelper);
         try {
             PullRequests pullRequests = bitbucketApi.getOpenedPullRequests();
             JsonCustomDataStorage<BitbucketPullRequestBuild> dataStorage =
