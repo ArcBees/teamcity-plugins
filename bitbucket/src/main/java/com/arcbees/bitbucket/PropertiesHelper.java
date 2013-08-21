@@ -2,6 +2,8 @@ package com.arcbees.bitbucket;
 
 import java.util.Map;
 
+import com.google.common.base.Strings;
+
 public class PropertiesHelper {
     private final Map<String, String> properties;
     private final Constants constants;
@@ -13,11 +15,15 @@ public class PropertiesHelper {
     }
 
     public String getRepositoryName() {
-        return properties.get(constants.getRepositoryNameKey());
+        String repoName = properties.get(constants.getRepositoryNameKey());
+
+        return Strings.nullToEmpty(repoName).toLowerCase();
     }
 
     public String getRepositoryOwner() {
-        return properties.get(constants.getRepositoryOwnerKey());
+        String repoOwner = properties.get(constants.getRepositoryOwnerKey());
+
+        return Strings.nullToEmpty(repoOwner).toLowerCase();
     }
 
     public String getPassword() {

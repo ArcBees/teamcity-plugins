@@ -1,6 +1,7 @@
 package com.arcbees.bitbucket.api.impl;
 
 import com.arcbees.bitbucket.Constants;
+import com.arcbees.bitbucket.PropertiesHelper;
 import com.arcbees.bitbucket.api.BitbucketApi;
 import com.arcbees.bitbucket.api.BitbucketApiFactory;
 
@@ -15,11 +16,11 @@ public class BitbucketApiFactoryImpl implements BitbucketApiFactory {
     }
 
     @Override
-    public BitbucketApi create(String userName,
-                               String password,
-                               String repoOwner,
-                               String repoName) {
+    public BitbucketApi create(PropertiesHelper propertiesHelper) {
         return new BitbucketApiImpl(httpClient, new BitbucketApiPaths(constants.getServerUrl()),
-                userName, password, repoOwner, repoName);
+                propertiesHelper.getUserName(),
+                propertiesHelper.getPassword(),
+                propertiesHelper.getRepositoryOwner(),
+                propertiesHelper.getRepositoryName());
     }
 }

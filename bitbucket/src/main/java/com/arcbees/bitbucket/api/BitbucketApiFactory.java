@@ -1,8 +1,7 @@
 package com.arcbees.bitbucket.api;
 
+import com.arcbees.bitbucket.PropertiesHelper;
+
 public interface BitbucketApiFactory {
-    BitbucketApi create(String userName,
-                        String password,
-                        String repoOwner,
-                        String repoName);
+    BitbucketApi create(PropertiesHelper propertiesHelper);
 }

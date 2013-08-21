@@ -40,11 +40,7 @@ public class PullRequestCommentHandler {
             SBuildType buildType = build.getBuildType();
 
             PropertiesHelper propertiesHelper = new PropertiesHelper(trigger.getProperties(), constants);
-            BitbucketApi bitbucketApi = bitbucketApiFactory.create(
-                    propertiesHelper.getUserName(),
-                    propertiesHelper.getPassword(),
-                    propertiesHelper.getRepositoryOwner(),
-                    propertiesHelper.getRepositoryName());
+            BitbucketApi bitbucketApi = bitbucketApiFactory.create(propertiesHelper);
 
             PullRequest pullRequest = bitbucketApi.getPullRequestForBranch(branch.getName());
 
