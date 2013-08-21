@@ -45,7 +45,7 @@ public class BitbucketBuildListener {
 
             Branch branch = build.getBranch();
             if (branch != null) {
-                commentHandler.process(build, trigger);
+                commentHandler.handle(build, trigger);
             } else {
                 LOGGER.severe("Unknown branch name");
             }

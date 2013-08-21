@@ -10,7 +10,7 @@ public interface BitbucketApi {
     PullRequests getOpenedPullRequests() throws IOException;
 
     Comment postComment(Integer pullRequestId,
-                     String comment) throws IOException;
+                        String comment) throws IOException;
 
     PullRequest getPullRequestForBranch(String branchName) throws IOException;
 

@@ -63,7 +63,7 @@ public class PullRequestCommentHandlerTest {
     public void firstBuild_postComment() throws IOException {
         given(build.getBuildStatus()).willReturn(Status.NORMAL);
 
-        commentHandler.process(build, trigger);
+        commentHandler.handle(build, trigger);
 
         verify(bitbucketApi, times(0)).deleteComment(anyInt(), anyLong());
         verify(bitbucketApi).postComment(anyInt(), anyString());
@@ -77,7 +77,7 @@ public class PullRequestCommentHandlerTest {
 
         given(dataStorage.getValue(anyString())).willReturn(new Gson().toJson(pullRequestBuild));
 
-        commentHandler.process(build, trigger);
+        commentHandler.handle(build, trigger);
 
         verify(bitbucketApi, times(0)).deleteComment(anyInt(), anyLong());
         verify(bitbucketApi, times(0)).postComment(anyInt(), anyString());
@@ -91,7 +91,7 @@ public class PullRequestCommentHandlerTest {
 
         given(dataStorage.getValue(anyString())).willReturn(new Gson().toJson(pullRequestBuild));
 
-        commentHandler.process(build, trigger);
+        commentHandler.handle(build, trigger);
 
         verify(bitbucketApi, times(1)).deleteComment(anyInt(), anyLong());
         verify(bitbucketApi, times(1)).postComment(anyInt(), anyString());
@@ -105,7 +105,7 @@ public class PullRequestCommentHandlerTest {
 
         given(dataStorage.getValue(anyString())).willReturn(new Gson().toJson(pullRequestBuild));
 
-        commentHandler.process(build, trigger);
+        commentHandler.handle(build, trigger);
 
         verify(bitbucketApi, times(1)).deleteComment(anyInt(), anyLong());
         verify(bitbucketApi, times(1)).postComment(anyInt(), anyString());

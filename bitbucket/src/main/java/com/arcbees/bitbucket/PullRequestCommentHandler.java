@@ -34,7 +34,7 @@ public class PullRequestCommentHandler {
         this.webLinks = webLinks;
     }
 
-    public void process(SRunningBuild build, BuildTriggerDescriptor trigger) throws IOException {
+    public void handle(SRunningBuild build, BuildTriggerDescriptor trigger) throws IOException {
         Branch branch = build.getBranch();
         if (branch != null) {
             SBuildType buildType = build.getBuildType();
@@ -52,8 +52,8 @@ public class PullRequestCommentHandler {
             BitbucketPullRequestBuild pullRequestBuild =
                     getBitbucketPullRequestBuild(propertiesHelper, pullRequest, dataStorage);
 
-            Comment comment = postOrUpdateComment(build, trigger, buildType, propertiesHelper, bitbucketApi,
-                    pullRequest, pullRequestBuild);
+            Comment comment = postOrUpdateComment(build, trigger, propertiesHelper, bitbucketApi, pullRequest,
+                    pullRequestBuild);
 
             pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, build.getBuildStatus(), comment);
             dataStorage.putValue(getPullRequestKey(propertiesHelper, pullRequest), pullRequestBuild);
@@ -62,14 +62,13 @@ public class PullRequestCommentHandler {
 
     private Comment postOrUpdateComment(SRunningBuild build,
                                         BuildTriggerDescriptor trigger,
-                                        SBuildType buildType,
                                         PropertiesHelper propertiesHelper,
                                         BitbucketApi bitbucketApi,
                                         PullRequest pullRequest,
                                         BitbucketPullRequestBuild pullRequestBuild) throws IOException {
         Comment comment = pullRequestBuild == null ? null : pullRequestBuild.getLastComment();
         if (shouldPostNewComment(build, trigger, propertiesHelper, pullRequest)) {
-            deleteOldComment(bitbucketApi, propertiesHelper, pullRequest, buildType, trigger);
+            deleteOldComment(bitbucketApi, propertiesHelper, pullRequest, build.getBuildType(), trigger);
             comment = bitbucketApi.postComment(pullRequest.getId(), getComment(build));
         }
 
