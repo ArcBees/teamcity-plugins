@@ -15,13 +15,16 @@
     </modules>
 
     <properties>
-        <teamcity.version>8.0-SNAPSHOT</teamcity.version>
+        <teamcity.version>8.0.3</teamcity.version>
 
         <maven.build.timestamp.format>yyyyddMMHHmmss</maven.build.timestamp.format>
 
         <replacer.version>1.5.2</replacer.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <target.jdk>1.6</target.jdk>
+        <junit.version>4.11</junit.version>
+        <mockito-all.version>1.9.5</mockito-all.version>
+        <openapi.version>7.0.3</openapi.version>
     </properties>
 
     <repositories>
@@ -43,6 +46,25 @@
             <artifactId>server</artifactId>
             <version>${teamcity.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>openapi</artifactId>
+            <version>${openapi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito-all.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

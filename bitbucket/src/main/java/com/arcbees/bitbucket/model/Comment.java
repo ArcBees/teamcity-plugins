@@ -16,28 +16,36 @@
 
 package com.arcbees.bitbucket.model;
 
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
 
-public class Commit {
-    @SerializedName("sha")
-    private String hash;
-    private List<Link> links;
+public class Comment {
+    @SerializedName("pull_request_id")
+    private Integer pullRequestId;
+    @SerializedName("comment_id")
+    private Long commentId;
+    private boolean deleted;
 
-    public String getHash() {
-        return hash;
+    public Integer getPullRequestId() {
+        return pullRequestId;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
+    public void setPullRequestId(Integer pullRequestId) {
+        this.pullRequestId = pullRequestId;
     }
 
-    public List<Link> getLinks() {
-        return links;
+    public Long getCommentId() {
+        return commentId;
     }
 
-    public void setLinks(List<Link> links) {
-        this.links = links;
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

@@ -6,6 +6,7 @@
 
     <bean class="com.arcbees.bitbucket.Constants"/>
     <bean class="com.arcbees.bitbucket.BitbucketBuildListener"/>
+    <bean class="com.arcbees.bitbucket.PullRequestCommentHandler"/>
     <bean class="com.arcbees.bitbucket.BitbucketPropertiesProcessor"/>
     <bean class="com.arcbees.bitbucket.BitbucketPullRequestTrigger"/>
     <bean class="com.arcbees.bitbucket.BitbucketPullRequestFeature"/>
