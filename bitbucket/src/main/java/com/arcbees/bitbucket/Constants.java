@@ -17,27 +17,45 @@
 package com.arcbees.bitbucket;
 
 public class Constants {
+    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
+    private static final String BUILD_FAILURE = "BUILD FAILURE ";
+    private static final String BITBUCKET_URL = "https://bitbucket.org";
+    private static final String USERNAME_KEY = "bitbucket_username";
+    private static final String PASSWORD_KEY = jetbrains.buildServer.agent.Constants.SECURE_PROPERTY_PREFIX +
+            "bitbucket_password";
+    private static final String REPOSITORY_KEY = "bitbucket_repo";
+    private static final String REPOSITORY_OWNER = "bitbucket_owner";
+    private static final String PULLREQUEST_KEY = "bitbucket_pullrequest_";
+
+    public String getBuildSuccess() {
+        return BUILD_SUCCESS;
+    }
+
+    public String getBuildFailure() {
+        return BUILD_FAILURE;
+    }
+
     public String getServerUrl() {
-        return "https://bitbucket.org";
+        return BITBUCKET_URL;
     }
 
     public String getUserNameKey() {
-        return "bitbucket_username";
+        return USERNAME_KEY;
     }
 
     public String getPasswordKey() {
-        return jetbrains.buildServer.agent.Constants.SECURE_PROPERTY_PREFIX + "bitbucket_password";
+        return PASSWORD_KEY;
     }
 
     public String getRepositoryNameKey() {
-        return "bitbucket_repo";
+        return REPOSITORY_KEY;
     }
 
     public String getRepositoryOwnerKey() {
-        return "bitbucket_owner";
+        return REPOSITORY_OWNER;
     }
 
     public String getPullRequestKey() {
-        return "bitbucket_pullrequest_";
+        return PULLREQUEST_KEY;
     }
 }

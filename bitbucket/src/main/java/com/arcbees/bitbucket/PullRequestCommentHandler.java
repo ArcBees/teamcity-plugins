@@ -180,9 +180,9 @@ public class PullRequestCommentHandler {
 
     private String getComment(Status status) {
         if (status.isSuccessful()) {
-            return "BUILD SUCCESS ";
+            return constants.getBuildSuccess();
         } else {
-            return "BUILD FAILURE ";
+            return constants.getBuildFailure();
         }
     }
 }
