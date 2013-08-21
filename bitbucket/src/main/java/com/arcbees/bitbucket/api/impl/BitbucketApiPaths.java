@@ -24,8 +24,8 @@ public class BitbucketApiPaths {
     }
 
     public String getPullRequest(String repositoryOwner,
-                                     String repositoryName,
-                                     Integer pullRequestId) {
+                                 String repositoryName,
+                                 Integer pullRequestId) {
         return baseUrl + API_2 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId);
     }
 
@@ -33,6 +33,14 @@ public class BitbucketApiPaths {
                              String repositoryName,
                              Integer pullRequestId) {
         return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + COMMENTS;
+    }
+
+    public String deleteComment(String repositoryOwner,
+                                String repositoryName,
+                                Integer pullRequestId,
+                                Long commentId) {
+        return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId)
+                + COMMENTS + SLASH + commentId;
     }
 
     private String pathToPullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {

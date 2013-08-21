@@ -15,6 +15,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -26,6 +27,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.arcbees.bitbucket.api.BitbucketApi;
 import com.arcbees.bitbucket.model.Branch;
+import com.arcbees.bitbucket.model.Comment;
 import com.arcbees.bitbucket.model.PullRequest;
 import com.arcbees.bitbucket.model.PullRequestTarget;
 import com.arcbees.bitbucket.model.PullRequests;
@@ -68,8 +70,7 @@ public class BitbucketApiImpl implements BitbucketApi {
     }
 
     @Override
-    public PullRequest getPullRequestForBranch(final String branchName)
-            throws IOException {
+    public PullRequest getPullRequestForBranch(final String branchName) throws IOException {
         PullRequests pullRequests = getOpenedPullRequests();
 
         return Iterables.tryFind(pullRequests.getPullRequests(), new Predicate<PullRequest>() {
@@ -85,17 +86,10 @@ public class BitbucketApiImpl implements BitbucketApi {
     }
 
     @Override
-    public void postComment(Integer pullRequestId,
-                            String comment) throws IOException {
+    public void deleteComment(Integer pullRequestId, Long commentId) throws IOException {
+        String requestUrl = apiPaths.deleteComment(repositoryOwner, repositoryName, pullRequestId, commentId);
 
-        String requestUrl = apiPaths.addComment(repositoryOwner, repositoryName, pullRequestId);
-
-        HttpPost request = new HttpPost(requestUrl);
-
-        List<NameValuePair> postParameters = Lists.newArrayList();
-        postParameters.add(new BasicNameValuePair("content", comment));
-
-        request.setEntity(new UrlEncodedFormEntity(postParameters));
+        HttpDelete request = new HttpDelete(requestUrl);
 
         includeAuthentication(request);
         setDefaultHeaders(request);
@@ -111,6 +105,21 @@ public class BitbucketApiImpl implements BitbucketApi {
                 EntityUtils.consumeQuietly(response.getEntity());
             }
         }
+    }
+
+    @Override
+    public Comment postComment(Integer pullRequestId,
+                               String comment) throws IOException {
+        String requestUrl = apiPaths.addComment(repositoryOwner, repositoryName, pullRequestId);
+
+        HttpPost request = new HttpPost(requestUrl);
+
+        List<NameValuePair> postParameters = Lists.newArrayList();
+        postParameters.add(new BasicNameValuePair("content", comment));
+
+        request.setEntity(new UrlEncodedFormEntity(postParameters));
+
+        return processResponse(request, Comment.class);
     }
 
     private <T> T processResponse(HttpUriRequest request,
