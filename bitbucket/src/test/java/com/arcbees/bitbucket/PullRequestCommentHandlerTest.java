@@ -22,6 +22,7 @@ import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.serverSide.WebLinks;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -41,7 +42,7 @@ public class PullRequestCommentHandlerTest {
     public void setUp() throws IOException {
         BitbucketApiFactory apiFactory = mock(BitbucketApiFactory.class);
         bitbucketApi = mock(BitbucketApi.class);
-        given(apiFactory.create(anyString(), anyString(), anyString(), anyString())).willReturn(bitbucketApi);
+        given(apiFactory.create(any(PropertiesHelper.class))).willReturn(bitbucketApi);
 
         commentHandler = new PullRequestCommentHandler(apiFactory, new Constants(), mock(WebLinks.class));
 
