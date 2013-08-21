@@ -3,8 +3,6 @@ package com.arcbees.bitbucket;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -85,7 +83,7 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
 
             batchTrigger.processTasks(triggerTasks, triggerDescriptor.getTriggerName());
         } catch (IOException e) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "IO EXCEPTION :", e);
+            e.printStackTrace();
         }
     }
 

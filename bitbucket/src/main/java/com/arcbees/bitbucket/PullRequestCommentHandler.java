@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import com.arcbees.bitbucket.api.BitbucketApi;
 import com.arcbees.bitbucket.api.BitbucketApiFactory;
@@ -71,9 +70,7 @@ public class PullRequestCommentHandler {
         Comment comment = pullRequestBuild == null ? null : pullRequestBuild.getLastComment();
         if (shouldPostNewComment(build, trigger, propertiesHelper, pullRequest)) {
             deleteOldComment(bitbucketApi, propertiesHelper, pullRequest, buildType, trigger);
-            Logger.getAnonymousLogger().severe("**** POSTING COMMENT");
             comment = bitbucketApi.postComment(pullRequest.getId(), getComment(build));
-            Logger.getAnonymousLogger().severe("**** COMMENT POSTED");
         }
 
         return comment;
@@ -89,9 +86,7 @@ public class PullRequestCommentHandler {
 
         Comment lastComment = pullRequestBuild == null ? null : pullRequestBuild.getLastComment();
         if (lastComment != null) {
-            Logger.getAnonymousLogger().severe("**** DELETING COMMENT");
             bitbucketApi.deleteComment(lastComment.getPullRequestId(), lastComment.getCommentId());
-            Logger.getAnonymousLogger().severe("**** COMMENT DELETED");
         }
     }
 
@@ -103,13 +98,10 @@ public class PullRequestCommentHandler {
                 getBitbucketPullRequestBuild(propertiesHelper, pullRequest, build.getBuildType(), trigger);
 
         boolean shouldPost = true;
-        Logger.getAnonymousLogger().severe("PullRequestBuild : " + pullRequestBuild);
         if (pullRequestBuild != null) {
             Status status = build.getBuildStatus();
             Status lastStatus = pullRequestBuild.getLastStatus();
 
-            Logger.getAnonymousLogger().severe("Status : " + status.isSuccessful());
-            Logger.getAnonymousLogger().severe("LastStatus : " + lastStatus.isSuccessful());
             shouldPost = !(lastStatus.isSuccessful() && status.isSuccessful())
                     || pullRequestBuild.getLastComment() == null;
         }

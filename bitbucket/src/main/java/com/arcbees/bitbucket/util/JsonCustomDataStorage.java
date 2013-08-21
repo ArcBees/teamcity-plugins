@@ -1,8 +1,5 @@
 package com.arcbees.bitbucket.util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -48,7 +45,6 @@ public class JsonCustomDataStorage<T> {
                 object = gson.fromJson(value, typeToken.getType());
             }
         } catch (JsonSyntaxException e) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "JsonSyntaxException :", e);
             object = null;
         }
 
