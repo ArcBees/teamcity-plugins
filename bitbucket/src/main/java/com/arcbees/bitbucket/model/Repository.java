@@ -16,14 +16,12 @@
 
 package com.arcbees.bitbucket.model;
 
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
 
 public class Repository {
     @SerializedName("full_name")
     private String fullName;
-    private List<Link> links;
+    private Links links;
 
     public String getFullName() {
         return fullName;
@@ -33,11 +31,11 @@ public class Repository {
         this.fullName = fullName;
     }
 
-    public List<Link> getLinks() {
+    public Links getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(Links links) {
         this.links = links;
     }
 }
