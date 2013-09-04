@@ -17,14 +17,13 @@
 package com.arcbees.bitbucket.model;
 
 import java.util.Date;
-import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
 public class PullRequest {
     private String status;
     private String description;
-    private List<Link> links;
+    private Links links;
     private String title;
     private int id;
     @SerializedName("created_on")
@@ -55,11 +54,11 @@ public class PullRequest {
         this.description = description;
     }
 
-    public List<Link> getLinks() {
+    public Links getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(Links links) {
         this.links = links;
     }
 
