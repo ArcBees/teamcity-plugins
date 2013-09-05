@@ -16,8 +16,6 @@
 
 package com.arcbees.bitbucket.model;
 
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
 
 public class User {
@@ -25,7 +23,7 @@ public class User {
     private String userName;
     @SerializedName("display_name")
     private String displayName;
-    private List<Link> links;
+    private Links links;
 
     public String getUserName() {
         return userName;
@@ -43,11 +41,11 @@ public class User {
         this.displayName = displayName;
     }
 
-    public List<Link> getLinks() {
+    public Links getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(Links links) {
         this.links = links;
     }
 }

@@ -16,14 +16,12 @@
 
 package com.arcbees.bitbucket.model;
 
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
 
 public class Commit {
     @SerializedName("sha")
     private String hash;
-    private List<Link> links;
+    private Links links;
 
     public String getHash() {
         return hash;
@@ -33,11 +31,11 @@ public class Commit {
         this.hash = hash;
     }
 
-    public List<Link> getLinks() {
+    public Links getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(Links links) {
         this.links = links;
     }
 }
