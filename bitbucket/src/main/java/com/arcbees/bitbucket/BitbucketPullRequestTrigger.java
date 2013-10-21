@@ -19,7 +19,6 @@ package com.arcbees.bitbucket;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,10 +39,13 @@ import jetbrains.buildServer.buildTriggers.PolledBuildTrigger;
 import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
 import jetbrains.buildServer.messages.Status;
 import jetbrains.buildServer.serverSide.BatchTrigger;
+import jetbrains.buildServer.serverSide.BranchEx;
 import jetbrains.buildServer.serverSide.BuildCustomizer;
 import jetbrains.buildServer.serverSide.BuildCustomizerFactory;
+import jetbrains.buildServer.serverSide.BuildTypeEx;
 import jetbrains.buildServer.serverSide.TriggerTask;
 import jetbrains.buildServer.vcs.SVcsModification;
+import jetbrains.buildServer.vcs.SelectPrevBuildPolicy;
 
 public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
     private final BitbucketApiFactory apiFactory;
@@ -107,38 +109,30 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                               String lastTriggeredCommitHash) {
         PullRequestTarget source = pullRequest.getSource();
         Commit lastCommit = source.getCommit();
-//        if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
-        addBuildTask(context, triggerTasks, source);
-//        }
+        if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
+            addBuildTask(context, triggerTasks, source);
+        }
     }
 
     private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequestTarget source) {
-        BuildCustomizer buildCustomizer = buildCustomizerFactory.createBuildCustomizer(
-                context.getBuildType(), null);
+        BuildTypeEx buildType = (BuildTypeEx) context.getBuildType();
+        BuildCustomizer buildCustomizer = buildCustomizerFactory.createBuildCustomizer(buildType, null);
         buildCustomizer.setCleanSources(true);
-        buildCustomizer.setDesiredBranchName(source.getBranch().getName());
 
-        SVcsModification targetCommit = findCommit(context, source);
+        BranchEx branch = buildType.getBranchByDisplayName(source.getBranch().getName());
+        SVcsModification lastModification = checkChanges(source.getCommit().getHash(),
+                branch.getDummyBuild().getChanges(SelectPrevBuildPolicy.SINCE_NULL_BUILD, true));
 
-        buildCustomizer.setChangesUpTo(targetCommit);
+        buildCustomizer.setDesiredBranchName(branch.getName());
+        buildCustomizer.setChangesUpTo(lastModification);
 
         TriggerTask task = batchTrigger.newTriggerTask(buildCustomizer.createPromotion());
         triggerTasks.add(task);
     }
 
-    private SVcsModification findCommit(PolledTriggerContext context, PullRequestTarget source) {
-        String commitHash = source.getCommit().getHash();
-        List<SVcsModification> pendingChanges = context.getBuildType().getPendingChanges();
-
-        checkChanges(commitHash, context.getBuildType().getModificationsSinceLastSuccessful());
-        return checkChanges(commitHash, pendingChanges);
-    }
-
-    private SVcsModification checkChanges(String commitHash, List<SVcsModification> pendingChanges) {
-        for (SVcsModification sVcsModification : pendingChanges) {
-            Logger.getAnonymousLogger().severe("******" + sVcsModification.getVersion() + " - " + commitHash);
+    private SVcsModification checkChanges(String commitHash, List<SVcsModification> changes) {
+        for (SVcsModification sVcsModification : changes) {
             if (sVcsModification.getVersion().startsWith(commitHash)) {
-                Logger.getAnonymousLogger().severe("****SVCS MATCH");
                 return sVcsModification;
             }
         }
