@@ -19,6 +19,7 @@ package com.arcbees.bitbucket;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,7 @@ import jetbrains.buildServer.serverSide.BatchTrigger;
 import jetbrains.buildServer.serverSide.BuildCustomizer;
 import jetbrains.buildServer.serverSide.BuildCustomizerFactory;
 import jetbrains.buildServer.serverSide.TriggerTask;
+import jetbrains.buildServer.vcs.SVcsModification;
 
 public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
     private final BitbucketApiFactory apiFactory;
@@ -105,9 +107,9 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                               String lastTriggeredCommitHash) {
         PullRequestTarget source = pullRequest.getSource();
         Commit lastCommit = source.getCommit();
-        if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
-            addBuildTask(context, triggerTasks, source);
-        }
+//        if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
+        addBuildTask(context, triggerTasks, source);
+//        }
     }
 
     private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequestTarget source) {
@@ -115,8 +117,33 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                 context.getBuildType(), null);
         buildCustomizer.setCleanSources(true);
         buildCustomizer.setDesiredBranchName(source.getBranch().getName());
+
+        SVcsModification targetCommit = findCommit(context, source);
+
+        buildCustomizer.setChangesUpTo(targetCommit);
+
         TriggerTask task = batchTrigger.newTriggerTask(buildCustomizer.createPromotion());
         triggerTasks.add(task);
+    }
+
+    private SVcsModification findCommit(PolledTriggerContext context, PullRequestTarget source) {
+        String commitHash = source.getCommit().getHash();
+        List<SVcsModification> pendingChanges = context.getBuildType().getPendingChanges();
+
+        checkChanges(commitHash, context.getBuildType().getModificationsSinceLastSuccessful());
+        return checkChanges(commitHash, pendingChanges);
+    }
+
+    private SVcsModification checkChanges(String commitHash, List<SVcsModification> pendingChanges) {
+        for (SVcsModification sVcsModification : pendingChanges) {
+            Logger.getAnonymousLogger().severe("******" + sVcsModification.getVersion() + " - " + commitHash);
+            if (sVcsModification.getVersion().startsWith(commitHash)) {
+                Logger.getAnonymousLogger().severe("****SVCS MATCH");
+                return sVcsModification;
+            }
+        }
+
+        return null;
     }
 
     private String getPullRequestKey(String repositoryOwner, String repositoryName, PullRequest pullRequest) {
