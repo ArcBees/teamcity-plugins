@@ -93,10 +93,11 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                     lastStatus = pullRequestBuild.getLastStatus();
                 }
 
-                pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, lastStatus, lastComment);
-                dataStorage.putValue(pullRequestKey, pullRequestBuild);
-
-                addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
+                boolean buildAdded = addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
+                if (buildAdded) {
+                    pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, lastStatus, lastComment);
+                    dataStorage.putValue(pullRequestKey, pullRequestBuild);
+                }
             }
 
             batchTrigger.processTasks(triggerTasks, triggerDescriptor.getTriggerName());
@@ -105,13 +106,18 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
         }
     }
 
-    private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest,
-                              String lastTriggeredCommitHash) {
+    private boolean addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest,
+                                 String lastTriggeredCommitHash) {
         PullRequestTarget source = pullRequest.getSource();
         Commit lastCommit = source.getCommit();
+
+        boolean added = false;
         if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
             addBuildTask(context, triggerTasks, source);
+            added = true;
         }
+
+        return added;
     }
 
     private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequestTarget source) {
@@ -124,7 +130,10 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                 branch.getDummyBuild().getChanges(SelectPrevBuildPolicy.SINCE_NULL_BUILD, true));
 
         buildCustomizer.setDesiredBranchName(branch.getName());
-        buildCustomizer.setChangesUpTo(lastModification);
+
+        if (lastModification != null) {
+            buildCustomizer.setChangesUpTo(lastModification);
+        }
 
         TriggerTask task = batchTrigger.newTriggerTask(buildCustomizer.createPromotion());
         triggerTasks.add(task);
