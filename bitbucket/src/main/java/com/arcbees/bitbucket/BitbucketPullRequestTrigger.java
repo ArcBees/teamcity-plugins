@@ -39,9 +39,13 @@ import jetbrains.buildServer.buildTriggers.PolledBuildTrigger;
 import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
 import jetbrains.buildServer.messages.Status;
 import jetbrains.buildServer.serverSide.BatchTrigger;
+import jetbrains.buildServer.serverSide.BranchEx;
 import jetbrains.buildServer.serverSide.BuildCustomizer;
 import jetbrains.buildServer.serverSide.BuildCustomizerFactory;
+import jetbrains.buildServer.serverSide.BuildTypeEx;
 import jetbrains.buildServer.serverSide.TriggerTask;
+import jetbrains.buildServer.vcs.SVcsModification;
+import jetbrains.buildServer.vcs.SelectPrevBuildPolicy;
 
 public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
     private final BitbucketApiFactory apiFactory;
@@ -89,10 +93,11 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
                     lastStatus = pullRequestBuild.getLastStatus();
                 }
 
-                pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, lastStatus, lastComment);
-                dataStorage.putValue(pullRequestKey, pullRequestBuild);
-
-                addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
+                boolean buildAdded = addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
+                if (buildAdded) {
+                    pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, lastStatus, lastComment);
+                    dataStorage.putValue(pullRequestKey, pullRequestBuild);
+                }
             }
 
             batchTrigger.processTasks(triggerTasks, triggerDescriptor.getTriggerName());
@@ -101,22 +106,47 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
         }
     }
 
-    private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest,
-                              String lastTriggeredCommitHash) {
+    private boolean addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest,
+                                 String lastTriggeredCommitHash) {
         PullRequestTarget source = pullRequest.getSource();
         Commit lastCommit = source.getCommit();
+
+        boolean added = false;
         if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
             addBuildTask(context, triggerTasks, source);
+            added = true;
         }
+
+        return added;
     }
 
     private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequestTarget source) {
-        BuildCustomizer buildCustomizer = buildCustomizerFactory.createBuildCustomizer(
-                context.getBuildType(), null);
+        BuildTypeEx buildType = (BuildTypeEx) context.getBuildType();
+        BuildCustomizer buildCustomizer = buildCustomizerFactory.createBuildCustomizer(buildType, null);
         buildCustomizer.setCleanSources(true);
-        buildCustomizer.setDesiredBranchName(source.getBranch().getName());
+
+        BranchEx branch = buildType.getBranchByDisplayName(source.getBranch().getName());
+        SVcsModification lastModification = checkChanges(source.getCommit().getHash(),
+                branch.getDummyBuild().getChanges(SelectPrevBuildPolicy.SINCE_NULL_BUILD, true));
+
+        buildCustomizer.setDesiredBranchName(branch.getName());
+
+        if (lastModification != null) {
+            buildCustomizer.setChangesUpTo(lastModification);
+        }
+
         TriggerTask task = batchTrigger.newTriggerTask(buildCustomizer.createPromotion());
         triggerTasks.add(task);
+    }
+
+    private SVcsModification checkChanges(String commitHash, List<SVcsModification> changes) {
+        for (SVcsModification sVcsModification : changes) {
+            if (sVcsModification.getVersion().startsWith(commitHash)) {
+                return sVcsModification;
+            }
+        }
+
+        return null;
     }
 
     private String getPullRequestKey(String repositoryOwner, String repositoryName, PullRequest pullRequest) {
