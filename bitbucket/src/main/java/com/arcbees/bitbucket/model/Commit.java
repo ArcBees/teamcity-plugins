@@ -16,10 +16,7 @@
 
 package com.arcbees.bitbucket.model;
 
-import com.google.gson.annotations.SerializedName;
-
 public class Commit {
-    @SerializedName("sha")
     private String hash;
     private Links links;
 
