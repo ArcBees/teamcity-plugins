@@ -64,8 +64,7 @@ public class PullRequestCommentHandler {
             BitbucketPullRequestBuild pullRequestBuild =
                     getBitbucketPullRequestBuild(propertiesHelper, pullRequest, dataStorage);
 
-            Comment comment = postOrUpdateComment(build, trigger, propertiesHelper, bitbucketApi, pullRequest,
-                    pullRequestBuild);
+            Comment comment = postOrUpdateComment(build, bitbucketApi, pullRequest, pullRequestBuild);
 
             pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, build.getBuildStatus(), comment);
             dataStorage.putValue(getPullRequestKey(propertiesHelper, pullRequest), pullRequestBuild);
@@ -73,60 +72,23 @@ public class PullRequestCommentHandler {
     }
 
     private Comment postOrUpdateComment(SRunningBuild build,
-                                        BuildTriggerDescriptor trigger,
-                                        PropertiesHelper propertiesHelper,
                                         BitbucketApi bitbucketApi,
                                         PullRequest pullRequest,
                                         BitbucketPullRequestBuild pullRequestBuild) throws IOException {
         Comment comment = pullRequestBuild == null ? null : pullRequestBuild.getLastComment();
-        if (shouldPostNewComment(build, trigger, propertiesHelper, pullRequest)) {
-            deleteOldComment(bitbucketApi, propertiesHelper, pullRequest, build.getBuildType(), trigger);
-            comment = bitbucketApi.postComment(pullRequest.getId(), getComment(build));
+
+        if (comment != null) {
+            deleteOldComment(bitbucketApi, comment);
         }
+
+        comment = bitbucketApi.postComment(pullRequest.getId(), getComment(build));
 
         return comment;
     }
 
     private void deleteOldComment(BitbucketApi bitbucketApi,
-                                  PropertiesHelper propertiesHelper,
-                                  PullRequest pullRequest,
-                                  SBuildType buildType,
-                                  BuildTriggerDescriptor trigger) throws IOException {
-        BitbucketPullRequestBuild pullRequestBuild =
-                getBitbucketPullRequestBuild(propertiesHelper, pullRequest, buildType, trigger);
-
-        Comment lastComment = pullRequestBuild == null ? null : pullRequestBuild.getLastComment();
-        if (lastComment != null) {
-            bitbucketApi.deleteComment(lastComment.getPullRequestId(), lastComment.getCommentId());
-        }
-    }
-
-    private boolean shouldPostNewComment(SRunningBuild build,
-                                         BuildTriggerDescriptor trigger,
-                                         PropertiesHelper propertiesHelper,
-                                         PullRequest pullRequest) {
-        BitbucketPullRequestBuild pullRequestBuild =
-                getBitbucketPullRequestBuild(propertiesHelper, pullRequest, build.getBuildType(), trigger);
-
-        boolean shouldPost = true;
-        if (pullRequestBuild != null) {
-            Status status = build.getBuildStatus();
-            Status lastStatus = pullRequestBuild.getLastStatus();
-
-            shouldPost = !(lastStatus.isSuccessful() && status.isSuccessful())
-                    || pullRequestBuild.getLastComment() == null;
-        }
-
-        return shouldPost;
-    }
-
-    private BitbucketPullRequestBuild getBitbucketPullRequestBuild(PropertiesHelper propertiesHelper,
-                                                                   PullRequest pullRequest,
-                                                                   SBuildType buildType,
-                                                                   BuildTriggerDescriptor trigger) {
-        JsonCustomDataStorage<BitbucketPullRequestBuild> dataStorage = getJsonDataStorage(buildType, trigger);
-
-        return getBitbucketPullRequestBuild(propertiesHelper, pullRequest, dataStorage);
+                                  Comment oldComment) throws IOException {
+        bitbucketApi.deleteComment(oldComment.getPullRequestId(), oldComment.getCommentId());
     }
 
     private BitbucketPullRequestBuild getBitbucketPullRequestBuild(PropertiesHelper propertiesHelper,

@@ -43,6 +43,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -50,7 +51,6 @@ public class PullRequestCommentHandlerTest {
     private PullRequestCommentHandler commentHandler;
     private BitbucketApi bitbucketApi;
     private BuildTriggerDescriptor trigger;
-    private SBuildType buildType;
     private CustomDataStorage dataStorage;
     private SRunningBuild build;
 
@@ -64,7 +64,7 @@ public class PullRequestCommentHandlerTest {
 
         trigger = mock(BuildTriggerDescriptor.class);
 
-        buildType = mock(SBuildType.class);
+        SBuildType buildType = mock(SBuildType.class);
         dataStorage = mock(CustomDataStorage.class);
         given(buildType.getCustomDataStorage(anyString())).willReturn(dataStorage);
 
@@ -82,12 +82,12 @@ public class PullRequestCommentHandlerTest {
 
         commentHandler.handle(build, trigger);
 
-        verify(bitbucketApi, times(0)).deleteComment(anyInt(), anyLong());
+        verify(bitbucketApi, never()).deleteComment(anyInt(), anyLong());
         verify(bitbucketApi).postComment(anyInt(), anyString());
     }
 
     @Test
-    public void secondSuccess_noComment() throws IOException {
+    public void secondSuccess_newComment() throws IOException {
         given(build.getBuildStatus()).willReturn(Status.NORMAL);
         BitbucketPullRequestBuild pullRequestBuild =
                 new BitbucketPullRequestBuild(createPullRequest(), Status.NORMAL, new Comment());
@@ -96,8 +96,8 @@ public class PullRequestCommentHandlerTest {
 
         commentHandler.handle(build, trigger);
 
-        verify(bitbucketApi, times(0)).deleteComment(anyInt(), anyLong());
-        verify(bitbucketApi, times(0)).postComment(anyInt(), anyString());
+        verify(bitbucketApi, times(1)).deleteComment(anyInt(), anyLong());
+        verify(bitbucketApi, times(1)).postComment(anyInt(), anyString());
     }
 
     @Test
