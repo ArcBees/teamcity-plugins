@@ -17,23 +17,24 @@
     </modules>
 
     <properties>
-        <teamcity.version>8.0.6</teamcity.version>
+        <teamcity.version>8.1.2</teamcity.version>
+        <openapi.version>7.0.3</openapi.version>
+        <!-- Guava is provided by TeamCity, do not update version -->
+        <guava.version>13.0.1</guava.version>
+
+        <gson.version>2.2.4</gson.version>
+        <httpclient.version>4.3.3</httpclient.version>
+
+        <junit.version>4.11</junit.version>
+        <mockito-all.version>1.9.5</mockito-all.version>
+        <jukito.version>1.4</jukito.version>
 
         <maven.build.timestamp.format>yyyyddMMHHmmss</maven.build.timestamp.format>
 
         <replacer.version>1.5.2</replacer.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
 
-        <junit.version>4.11</junit.version>
-        <mockito-all.version>1.9.5</mockito-all.version>
-        <openapi.version>7.0.3</openapi.version>
-        <guava.version>13.0.1</guava.version>
-
-        <gson.version>2.2.4</gson.version>
-        <httpclient.version>4.3.3</httpclient.version>
-
         <target.jdk>1.7</target.jdk>
-        <jukito.version>1.4</jukito.version>
     </properties>
 
     <repositories>

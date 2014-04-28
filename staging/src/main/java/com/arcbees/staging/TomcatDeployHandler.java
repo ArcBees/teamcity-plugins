@@ -81,34 +81,25 @@ public class TomcatDeployHandler {
             PullRequest pullRequest = bitbucketApi.getPullRequestForBranch(branch.getName());
 
             JsonCustomDataStorage<TomcatStagingDeploy> dataStorage = getJsonDataStorage(buildType, trigger);
-            TomcatStagingDeploy stagingDeploy =
-                    getTomcatStagingDeploy(bitbucketPropertiesHelper, pullRequest, dataStorage);
-
-            if (stagingDeploy == null) {
-                stagingDeploy = new TomcatStagingDeploy(pullRequest, false);
-            }
-
             StagingPropertiesHelper stagingPropertiesHelper =
                     new StagingPropertiesHelper(trigger.getProperties(), constants);
 
-            TomcatManager tomcatManager = createTomcatManager(stagingPropertiesHelper);
+            TomcatStagingDeploy stagingDeploy =
+                    getTomcatStagingDeploy(bitbucketPropertiesHelper, pullRequest, dataStorage);
 
-            boolean success = deploy(build, stagingPropertiesHelper.getBaseContext(), tomcatManager, stagingDeploy);
-            stagingDeploy.setDeployed(success);
-
-            LOGGER.severe(stagingDeploy.getWebPath() + " - " + success);
-            if (success) {
-                postComment(bitbucketApi, pullRequest, stagingDeploy);
-            }
+            deploy(build, stagingPropertiesHelper, stagingDeploy);
+            postComment(bitbucketApi, pullRequest, stagingDeploy);
 
             dataStorage.putValue(getPullRequestKey(bitbucketPropertiesHelper, pullRequest), stagingDeploy);
         }
     }
 
-    private boolean deploy(final SRunningBuild build,
-                           final String baseContext,
-                           final TomcatManager tomcatManager,
-                           final TomcatStagingDeploy stagingDeploy) throws IOException {
+    private void deploy(final SRunningBuild build,
+                        StagingPropertiesHelper stagingPropertiesHelper,
+                        final TomcatStagingDeploy stagingDeploy) throws IOException {
+        final String baseContext = stagingPropertiesHelper.getBaseContext();
+        final TomcatManager tomcatManager = createTomcatManager(stagingPropertiesHelper);
+
         try {
             build.getArtifacts(BuildArtifactsViewMode.VIEW_DEFAULT)
                     .iterateArtifacts(new BuildArtifacts.BuildArtifactsProcessor() {
@@ -127,9 +118,10 @@ public class TomcatDeployHandler {
                         }
                     });
 
-            return true;
+            stagingDeploy.setDeployed(true);
         } catch (Exception e) {
-            return false;
+            stagingDeploy.setDeployed(false);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -144,9 +136,8 @@ public class TomcatDeployHandler {
         File artifact = new File(build.getArtifactsDirectory(), buildArtifact.getRelativePath());
         String path = baseContext + "/" + build.getBranch().getName();
 
-        String tomcatPath = UrlUtils.extractBaseUrl(tomcatManager.getURL());
-
-        stagingDeploy.setWebPath(tomcatPath + path);
+        String tomcatBasePath = UrlUtils.extractBaseUrl(tomcatManager.getURL());
+        stagingDeploy.setWebPath(tomcatBasePath + path);
 
         TomcatManagerResponse response = tomcatManager.deploy(path, artifact, true, path, artifact.length());
 
@@ -169,7 +160,7 @@ public class TomcatDeployHandler {
                                 TomcatStagingDeploy stagingDeploy) throws IOException {
         Comment comment = stagingDeploy.getComment();
 
-        if (comment == null) {
+        if (comment == null && stagingDeploy.isDeployed()) {
             comment = bitbucketApi.postComment(pullRequest.getId(), getComment(stagingDeploy));
             stagingDeploy.setComment(comment);
         }
@@ -183,7 +174,13 @@ public class TomcatDeployHandler {
         String pullRequestKey = getPullRequestKey(bitbucketPropertiesHelper.getRepositoryOwner(),
                 bitbucketPropertiesHelper.getRepositoryName(), pullRequest);
 
-        return dataStorage.getValue(pullRequestKey);
+        TomcatStagingDeploy stagingDeploy = dataStorage.getValue(pullRequestKey);
+
+        if (stagingDeploy == null) {
+            stagingDeploy = new TomcatStagingDeploy(pullRequest, false);
+        }
+
+        return stagingDeploy;
     }
 
     private JsonCustomDataStorage<TomcatStagingDeploy> getJsonDataStorage(SBuildType buildType,
