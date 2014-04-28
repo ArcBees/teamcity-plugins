@@ -72,38 +72,55 @@ public class TomcatStagingTrigger extends PolledBuildTrigger {
         String mergeBranch = stagingPropertiesHelper.getMergeBranch();
 
         if (!Strings.isNullOrEmpty(mergeBranch)) {
-            BitbucketPropertiesHelper bitbucketPropertiesHelper =
-                    new BitbucketPropertiesHelper(properties, bitbucketConstants);
-            String repositoryOwner = bitbucketPropertiesHelper.getRepositoryOwner();
-            String repositoryName = bitbucketPropertiesHelper.getRepositoryName();
-
-            TomcatManager tomcatManager = createTomcatManager(stagingPropertiesHelper);
-            BitbucketApi bitbucketApi = apiFactory.create(bitbucketPropertiesHelper);
             try {
-                PullRequests pullRequests = bitbucketApi.getMergedPullRequests();
-                JsonCustomDataStorage<TomcatStagingDeploy> dataStorage =
-                        JsonCustomDataStorage.create(context.getCustomDataStorage(), TomcatStagingDeploy.class);
-
-                for (PullRequest pullRequest : pullRequests.getPullRequests()) {
-                    if (isTargetMergeBranch(mergeBranch, pullRequest)) {
-                        String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
-                        TomcatStagingDeploy stagingDeploy = dataStorage.getValue(pullRequestKey);
-
-                        if (stagingDeploy == null) {
-                            stagingDeploy = new TomcatStagingDeploy(pullRequest, false);
-                        }
-
-                        if (stagingDeploy.isDeployed() && !stagingDeploy.isUndeployed()) {
-                            boolean undeploySuccess = undeploy(tomcatManager, stagingDeploy);
-                            stagingDeploy.setUndeployed(undeploySuccess);
-                            dataStorage.putValue(pullRequestKey, stagingDeploy);
-                        }
-                    }
-                }
+                checkBranchesToUndeploy(context, properties, stagingPropertiesHelper, mergeBranch);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
+    }
+
+    private void checkBranchesToUndeploy(PolledTriggerContext context, Map<String, String> properties,
+                                         StagingPropertiesHelper stagingPropertiesHelper, String mergeBranch)
+            throws IOException {
+        BitbucketPropertiesHelper bitbucketPropertiesHelper =
+                new BitbucketPropertiesHelper(properties, bitbucketConstants);
+        String repositoryOwner = bitbucketPropertiesHelper.getRepositoryOwner();
+        String repositoryName = bitbucketPropertiesHelper.getRepositoryName();
+
+        JsonCustomDataStorage<TomcatStagingDeploy> dataStorage =
+                JsonCustomDataStorage.create(context.getCustomDataStorage(), TomcatStagingDeploy.class);
+        TomcatManager tomcatManager = createTomcatManager(stagingPropertiesHelper);
+
+        PullRequests pullRequests = getMergedPullRequests(bitbucketPropertiesHelper);
+        for (PullRequest pullRequest : pullRequests.getPullRequests()) {
+            if (isTargetMergeBranch(mergeBranch, pullRequest)) {
+                String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
+                TomcatStagingDeploy stagingDeploy = getTomcatStagingDeploy(dataStorage, pullRequest, pullRequestKey);
+
+                if (stagingDeploy.isDeployed() && !stagingDeploy.isUndeployed()) {
+                    undeploy(tomcatManager, stagingDeploy);
+                    dataStorage.putValue(pullRequestKey, stagingDeploy);
+                }
+            }
+        }
+    }
+
+    private PullRequests getMergedPullRequests(BitbucketPropertiesHelper bitbucketPropertiesHelper) throws IOException {
+        BitbucketApi bitbucketApi = apiFactory.create(bitbucketPropertiesHelper);
+
+        return bitbucketApi.getMergedPullRequests();
+    }
+
+    private TomcatStagingDeploy getTomcatStagingDeploy(JsonCustomDataStorage<TomcatStagingDeploy> dataStorage,
+                                                       PullRequest pullRequest,
+                                                       String pullRequestKey) {
+        TomcatStagingDeploy stagingDeploy = dataStorage.getValue(pullRequestKey);
+
+        if (stagingDeploy == null) {
+            stagingDeploy = new TomcatStagingDeploy(pullRequest, false);
+        }
+        return stagingDeploy;
     }
 
     private TomcatManager createTomcatManager(StagingPropertiesHelper propertiesHelper) {
@@ -121,22 +138,31 @@ public class TomcatStagingTrigger extends PolledBuildTrigger {
         return mergeBranch.equals(branchName);
     }
 
-    private boolean undeploy(TomcatManager tomcatManager, TomcatStagingDeploy stagingDeploy) throws IOException {
+    private void undeploy(TomcatManager tomcatManager, TomcatStagingDeploy stagingDeploy) throws IOException {
+        boolean success;
         try {
-            String tomcatUrl = UrlUtils.extractBaseUrl(tomcatManager.getURL());
-            String webPath = Strings.nullToEmpty(stagingDeploy.getWebPath())
-                    .replace(tomcatUrl, "");
+            String webPath = getWebAppUndeployPath(tomcatManager, stagingDeploy);
 
-            LOGGER.severe("Undeploying WebAPP : " + webPath);
+            LOGGER.info("Undeploying WebAPP : " + webPath);
+
             TomcatManagerResponse response = tomcatManager.undeploy(webPath);
-
             int statusCode = response.getStatusCode();
 
-            return HttpStatus.SC_OK == statusCode || HttpStatus.SC_NOT_FOUND == statusCode;
+            success = HttpStatus.SC_OK == statusCode || HttpStatus.SC_NOT_FOUND == statusCode;
         } catch (TomcatManagerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            return false;
+            success = false;
         }
+
+        stagingDeploy.setUndeployed(success);
+    }
+
+    private String getWebAppUndeployPath(TomcatManager tomcatManager,
+                                         TomcatStagingDeploy stagingDeploy) {
+        String tomcatUrl = UrlUtils.extractBaseUrl(tomcatManager.getURL());
+
+        return Strings.nullToEmpty(stagingDeploy.getWebPath())
+                .replace(tomcatUrl, "");
     }
 
     private String getBranchName(PullRequestTarget source) {
