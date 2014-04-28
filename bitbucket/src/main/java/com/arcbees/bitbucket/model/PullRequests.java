@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -27,6 +27,7 @@ public class PullRequests {
     private int size;
     @SerializedName("values")
     private List<PullRequest> pullRequests;
+    private String next;
 
     public List<PullRequest> getPullRequests() {
         return pullRequests;
@@ -58,5 +59,13 @@ public class PullRequests {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public String getNext() {
+        return next;
+    }
+
+    public void setNext(String next) {
+        this.next = next;
     }
 }

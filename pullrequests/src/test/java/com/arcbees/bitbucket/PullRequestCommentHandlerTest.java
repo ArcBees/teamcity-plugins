@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,7 +25,6 @@ import com.arcbees.bitbucket.api.BitbucketApi;
 import com.arcbees.bitbucket.api.BitbucketApiFactory;
 import com.arcbees.bitbucket.model.Comment;
 import com.arcbees.bitbucket.model.PullRequest;
-import com.arcbees.bitbucket.util.BitbucketPullRequestBuild;
 import com.google.gson.Gson;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
@@ -58,9 +57,9 @@ public class PullRequestCommentHandlerTest {
     public void setUp() throws IOException {
         BitbucketApiFactory apiFactory = mock(BitbucketApiFactory.class);
         bitbucketApi = mock(BitbucketApi.class);
-        given(apiFactory.create(any(PropertiesHelper.class))).willReturn(bitbucketApi);
+        given(apiFactory.create(any(BitbucketPropertiesHelper.class))).willReturn(bitbucketApi);
 
-        commentHandler = new PullRequestCommentHandler(apiFactory, new Constants(), mock(WebLinks.class));
+        commentHandler = new PullRequestCommentHandler(apiFactory, new BitbucketConstants(), mock(WebLinks.class));
 
         trigger = mock(BuildTriggerDescriptor.class);
 

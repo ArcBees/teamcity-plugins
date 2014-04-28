@@ -4,10 +4,6 @@
     <bean class="com.arcbees.bitbucket.api.impl.BitbucketApiFactoryImpl"/>
     <bean class="com.arcbees.bitbucket.api.impl.HttpClientWrapperImpl" destroy-method="shutdown"/>
 
-    <bean class="com.arcbees.bitbucket.Constants"/>
-    <bean class="com.arcbees.bitbucket.BitbucketBuildListener"/>
-    <bean class="com.arcbees.bitbucket.PullRequestCommentHandler"/>
+    <bean class="com.arcbees.bitbucket.BitbucketConstants"/>
     <bean class="com.arcbees.bitbucket.BitbucketPropertiesProcessor"/>
-    <bean class="com.arcbees.bitbucket.BitbucketPullRequestTrigger"/>
-    <bean class="com.arcbees.bitbucket.BitbucketPullRequestFeature"/>
 </beans>

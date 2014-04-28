@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,7 +25,6 @@ import com.arcbees.bitbucket.api.BitbucketApi;
 import com.arcbees.bitbucket.api.BitbucketApiFactory;
 import com.arcbees.bitbucket.model.Comment;
 import com.arcbees.bitbucket.model.PullRequest;
-import com.arcbees.bitbucket.util.BitbucketPullRequestBuild;
 import com.arcbees.bitbucket.util.JsonCustomDataStorage;
 import com.google.common.collect.Lists;
 
@@ -39,14 +38,14 @@ import jetbrains.buildServer.serverSide.WebLinks;
 
 public class PullRequestCommentHandler {
     private final BitbucketApiFactory bitbucketApiFactory;
-    private final Constants constants;
+    private final BitbucketConstants bitbucketConstants;
     private final WebLinks webLinks;
 
     public PullRequestCommentHandler(BitbucketApiFactory bitbucketApiFactory,
-                                     Constants constants,
+                                     BitbucketConstants bitbucketConstants,
                                      WebLinks webLinks) {
         this.bitbucketApiFactory = bitbucketApiFactory;
-        this.constants = constants;
+        this.bitbucketConstants = bitbucketConstants;
         this.webLinks = webLinks;
     }
 
@@ -55,19 +54,20 @@ public class PullRequestCommentHandler {
         if (branch != null) {
             SBuildType buildType = build.getBuildType();
 
-            PropertiesHelper propertiesHelper = new PropertiesHelper(trigger.getProperties(), constants);
-            BitbucketApi bitbucketApi = bitbucketApiFactory.create(propertiesHelper);
+            BitbucketPropertiesHelper bitbucketPropertiesHelper = new BitbucketPropertiesHelper(trigger.getProperties(),
+                    bitbucketConstants);
+            BitbucketApi bitbucketApi = bitbucketApiFactory.create(bitbucketPropertiesHelper);
 
             PullRequest pullRequest = bitbucketApi.getPullRequestForBranch(branch.getName());
 
             JsonCustomDataStorage<BitbucketPullRequestBuild> dataStorage = getJsonDataStorage(buildType, trigger);
             BitbucketPullRequestBuild pullRequestBuild =
-                    getBitbucketPullRequestBuild(propertiesHelper, pullRequest, dataStorage);
+                    getBitbucketPullRequestBuild(bitbucketPropertiesHelper, pullRequest, dataStorage);
 
             Comment comment = postOrUpdateComment(build, bitbucketApi, pullRequest, pullRequestBuild);
 
             pullRequestBuild = new BitbucketPullRequestBuild(pullRequest, build.getBuildStatus(), comment);
-            dataStorage.putValue(getPullRequestKey(propertiesHelper, pullRequest), pullRequestBuild);
+            dataStorage.putValue(getPullRequestKey(bitbucketPropertiesHelper, pullRequest), pullRequestBuild);
         }
     }
 
@@ -91,12 +91,12 @@ public class PullRequestCommentHandler {
         bitbucketApi.deleteComment(oldComment.getPullRequestId(), oldComment.getCommentId());
     }
 
-    private BitbucketPullRequestBuild getBitbucketPullRequestBuild(PropertiesHelper propertiesHelper,
+    private BitbucketPullRequestBuild getBitbucketPullRequestBuild(BitbucketPropertiesHelper bitbucketPropertiesHelper,
                                                                    PullRequest pullRequest,
                                                                    JsonCustomDataStorage<BitbucketPullRequestBuild>
                                                                            dataStorage) {
-        String pullRequestKey = getPullRequestKey(propertiesHelper.getRepositoryOwner(),
-                propertiesHelper.getRepositoryName(), pullRequest);
+        String pullRequestKey = getPullRequestKey(bitbucketPropertiesHelper.getRepositoryOwner(),
+                bitbucketPropertiesHelper.getRepositoryName(), pullRequest);
 
         return dataStorage.getValue(pullRequestKey);
     }
@@ -109,12 +109,13 @@ public class PullRequestCommentHandler {
         return JsonCustomDataStorage.create(customDataStorage, BitbucketPullRequestBuild.class);
     }
 
-    private String getPullRequestKey(PropertiesHelper helper, PullRequest pullRequest) {
+    private String getPullRequestKey(BitbucketPropertiesHelper helper, PullRequest pullRequest) {
         return getPullRequestKey(helper.getRepositoryOwner(), helper.getRepositoryName(), pullRequest);
     }
 
     private String getPullRequestKey(String repositoryOwner, String repositoryName, PullRequest pullRequest) {
-        return constants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_" + pullRequest.getId();
+        return bitbucketConstants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_" + pullRequest
+                .getId();
     }
 
     private String getStorageId(BuildTriggerDescriptor triggerDescriptor) {
@@ -142,9 +143,9 @@ public class PullRequestCommentHandler {
 
     private String getComment(Status status) {
         if (status.isSuccessful()) {
-            return constants.getBuildSuccess();
+            return bitbucketConstants.getBuildSuccess();
         } else {
-            return constants.getBuildFailure();
+            return bitbucketConstants.getBuildFailure();
         }
     }
 }

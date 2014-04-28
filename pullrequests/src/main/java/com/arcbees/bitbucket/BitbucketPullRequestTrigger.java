@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -29,7 +29,6 @@ import com.arcbees.bitbucket.model.Commit;
 import com.arcbees.bitbucket.model.PullRequest;
 import com.arcbees.bitbucket.model.PullRequestTarget;
 import com.arcbees.bitbucket.model.PullRequests;
-import com.arcbees.bitbucket.util.BitbucketPullRequestBuild;
 import com.arcbees.bitbucket.util.JsonCustomDataStorage;
 import com.google.common.collect.Lists;
 
@@ -50,16 +49,16 @@ import jetbrains.buildServer.vcs.SelectPrevBuildPolicy;
 public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
     private final BitbucketApiFactory apiFactory;
     private final BatchTrigger batchTrigger;
-    private final Constants constants;
+    private final BitbucketConstants bitbucketConstants;
     private final BuildCustomizerFactory buildCustomizerFactory;
 
     public BitbucketPullRequestTrigger(BitbucketApiFactory apiFactory,
                                        BatchTrigger batchTrigger,
-                                       Constants constants,
+                                       BitbucketConstants bitbucketConstants,
                                        BuildCustomizerFactory buildCustomizerFactory) {
         this.apiFactory = apiFactory;
         this.batchTrigger = batchTrigger;
-        this.constants = constants;
+        this.bitbucketConstants = bitbucketConstants;
         this.buildCustomizerFactory = buildCustomizerFactory;
     }
 
@@ -68,11 +67,11 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
         BuildTriggerDescriptor triggerDescriptor = context.getTriggerDescriptor();
         Map<String, String> properties = triggerDescriptor.getProperties();
 
-        PropertiesHelper propertiesHelper = new PropertiesHelper(properties, constants);
-        String repositoryOwner = propertiesHelper.getRepositoryOwner();
-        String repositoryName = propertiesHelper.getRepositoryName();
+        BitbucketPropertiesHelper bitbucketPropertiesHelper = new BitbucketPropertiesHelper(properties, bitbucketConstants);
+        String repositoryOwner = bitbucketPropertiesHelper.getRepositoryOwner();
+        String repositoryName = bitbucketPropertiesHelper.getRepositoryName();
 
-        BitbucketApi bitbucketApi = apiFactory.create(propertiesHelper);
+        BitbucketApi bitbucketApi = apiFactory.create(bitbucketPropertiesHelper);
         try {
             PullRequests pullRequests = bitbucketApi.getOpenedPullRequests();
             JsonCustomDataStorage<BitbucketPullRequestBuild> dataStorage =
@@ -150,6 +149,6 @@ public class BitbucketPullRequestTrigger extends PolledBuildTrigger {
     }
 
     private String getPullRequestKey(String repositoryOwner, String repositoryName, PullRequest pullRequest) {
-        return constants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_" + pullRequest.getId();
+        return bitbucketConstants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_" + pullRequest.getId();
     }
 }

@@ -14,13 +14,14 @@
  * the License.
  */
 
-package com.arcbees.bitbucket.api.impl;
+package com.arcbees.staging;
 
-import java.io.IOException;
+import java.net.URL;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
+public class UrlUtils {
+    public static String extractBaseUrl(URL url) {
+        String port = url.getPort() > 0 ? ":" + url.getPort() : "";
 
-public interface HttpClientWrapper {
-    HttpResponse execute(HttpUriRequest request) throws IOException;
+        return url.getProtocol() + "://" + url.getHost() + port;
+    }
 }

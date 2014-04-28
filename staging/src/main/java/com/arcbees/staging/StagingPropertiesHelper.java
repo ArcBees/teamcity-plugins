@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,33 +14,37 @@
  * the License.
  */
 
-package com.arcbees.bitbucket;
+package com.arcbees.staging;
 
 import java.util.Map;
 
-public class PropertiesHelper {
+public class StagingPropertiesHelper {
     private final Map<String, String> properties;
     private final Constants constants;
 
-    public PropertiesHelper(Map<String, String> properties,
-                            Constants constants) {
+    public StagingPropertiesHelper(Map<String, String> properties,
+                                   Constants constants) {
         this.properties = properties;
         this.constants = constants;
     }
 
-    public String getRepositoryName() {
-        return properties.get(constants.getRepositoryNameKey());
+    public String getTomcatUrl() {
+        return properties.get(constants.getTomcatUrl());
     }
 
-    public String getRepositoryOwner() {
-        return properties.get(constants.getRepositoryOwnerKey());
+    public String getMergeBranch() {
+        return properties.get(constants.getTomcatMergeBranch());
+    }
+
+    public String getUserName() {
+        return properties.get(constants.getUserNameKey());
     }
 
     public String getPassword() {
         return properties.get(constants.getPasswordKey());
     }
 
-    public String getUserName() {
-        return properties.get(constants.getUserNameKey());
+    public String getBaseContext() {
+        return properties.get(constants.getBaseContextKey());
     }
 }

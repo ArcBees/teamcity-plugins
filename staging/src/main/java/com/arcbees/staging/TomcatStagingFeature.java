@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.arcbees.bitbucket;
+package com.arcbees.staging;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,19 +25,19 @@ import jetbrains.buildServer.buildTriggers.BuildTriggeringPolicy;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 
-public class BitbucketPullRequestFeature extends BuildTriggerService {
-    public static final String NAME = "Bitbucket Pull Request";
+public class TomcatStagingFeature extends BuildTriggerService {
+    public static final String NAME = "TomcatStaging";
 
-    private static final String DISPLAY_NAME = "Bitbucket Pull Requests";
-    private static final String EDIT_URL = "bitbucket_pr.jsp";
+    private static final String DISPLAY_NAME = "Tomcat 7 Deploy and Staging";
+    private static final String EDIT_URL = "staging_deploy.jsp";
 
-    private final BitbucketPropertiesProcessor propertiesProcessor;
-    private final BitbucketPullRequestTrigger triggeringPolicy;
+    private final TomcatStagingPropertiesProcessor propertiesProcessor;
+    private final TomcatStagingTrigger triggeringPolicy;
     private final PluginDescriptor pluginDescriptor;
 
-    public BitbucketPullRequestFeature(BitbucketPullRequestTrigger triggeringPolicy,
-                                       BitbucketPropertiesProcessor propertiesProcessor,
-                                       PluginDescriptor pluginDescriptor) {
+    public TomcatStagingFeature(TomcatStagingTrigger triggeringPolicy,
+                                TomcatStagingPropertiesProcessor propertiesProcessor,
+                                PluginDescriptor pluginDescriptor) {
         this.triggeringPolicy = triggeringPolicy;
         this.propertiesProcessor = propertiesProcessor;
         this.pluginDescriptor = pluginDescriptor;
@@ -58,7 +58,7 @@ public class BitbucketPullRequestFeature extends BuildTriggerService {
     @NotNull
     @Override
     public String describeTrigger(@NotNull BuildTriggerDescriptor buildTriggerDescriptor) {
-        return buildTriggerDescriptor.getTriggerName();
+        return DISPLAY_NAME;
     }
 
     @NotNull

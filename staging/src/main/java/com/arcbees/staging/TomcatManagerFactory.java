@@ -14,13 +14,14 @@
  * the License.
  */
 
-package com.arcbees.bitbucket.api.impl;
+package com.arcbees.staging;
 
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.tomcat.maven.common.deployer.TomcatManager;
 
-public interface HttpClientWrapper {
-    HttpResponse execute(HttpUriRequest request) throws IOException;
+public interface TomcatManagerFactory {
+    TomcatManager create(StagingPropertiesHelper stagingPropertiesHelper)
+            throws URISyntaxException, MalformedURLException;
 }

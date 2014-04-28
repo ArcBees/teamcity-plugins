@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.arcbees.bitbucket;
+package com.arcbees.staging;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,11 +25,11 @@ import com.google.common.base.Strings;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 
-public class BitbucketPropertiesProcessor implements PropertiesProcessor {
-    private final BitbucketConstants bitbucketConstants;
+public class TomcatStagingPropertiesProcessor implements PropertiesProcessor {
+    private final Constants constants;
 
-    public BitbucketPropertiesProcessor(BitbucketConstants bitbucketConstants) {
-        this.bitbucketConstants = bitbucketConstants;
+    public TomcatStagingPropertiesProcessor(Constants constants) {
+        this.constants = constants;
     }
 
     @Override
@@ -37,10 +37,14 @@ public class BitbucketPropertiesProcessor implements PropertiesProcessor {
         Collection<InvalidProperty> result = new ArrayList<InvalidProperty>();
         if (properties == null) return result;
 
-        checkNotEmpty(properties, bitbucketConstants.getUserNameKey(), "Username must be specified", result);
-        checkNotEmpty(properties, bitbucketConstants.getPasswordKey(), "Password must be specified", result);
-        checkNotEmpty(properties, bitbucketConstants.getRepositoryOwnerKey(), "Repository owner must be specified", result);
-        checkNotEmpty(properties, bitbucketConstants.getRepositoryNameKey(), "Repository name must be specified", result);
+        checkNotEmpty(properties, constants.getUserNameKey(), "Username must be specified", result);
+        checkNotEmpty(properties, constants.getPasswordKey(), "Password must be specified", result);
+        checkNotEmpty(properties, constants.getTomcatUrl(), "Tomcat Manager URL must be specified", result);
+
+        String contextPath = properties.get(constants.getBaseContextKey());
+        if (!Strings.isNullOrEmpty(contextPath) && !contextPath.startsWith("/")) {
+            properties.put(constants.getBaseContextKey(), "/" + contextPath);
+        }
 
         return result;
     }

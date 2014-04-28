@@ -12,19 +12,28 @@
 
     <modules>
         <module>bitbucket</module>
+        <module>pullrequests</module>
+        <module>staging</module>
     </modules>
 
     <properties>
-        <teamcity.version>8.0.3</teamcity.version>
+        <teamcity.version>8.0.6</teamcity.version>
 
         <maven.build.timestamp.format>yyyyddMMHHmmss</maven.build.timestamp.format>
 
         <replacer.version>1.5.2</replacer.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
-        <target.jdk>1.6</target.jdk>
+
         <junit.version>4.11</junit.version>
         <mockito-all.version>1.9.5</mockito-all.version>
         <openapi.version>7.0.3</openapi.version>
+        <guava.version>13.0.1</guava.version>
+
+        <gson.version>2.2.4</gson.version>
+        <httpclient.version>4.3.3</httpclient.version>
+
+        <target.jdk>1.7</target.jdk>
+        <jukito.version>1.4</jukito.version>
     </properties>
 
     <repositories>
@@ -55,6 +64,22 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
@@ -66,7 +91,23 @@
             <version>${mockito-all.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jukito</groupId>
+            <artifactId>jukito</artifactId>
+            <version>${jukito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <resources>

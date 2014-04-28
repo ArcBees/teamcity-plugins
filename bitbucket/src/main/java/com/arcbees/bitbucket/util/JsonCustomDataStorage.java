@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,9 +16,9 @@
 
 package com.arcbees.bitbucket.util;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import jetbrains.buildServer.serverSide.CustomDataStorage;
 
