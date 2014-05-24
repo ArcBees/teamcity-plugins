@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.arcbees.bitbucket;
+package com.arcbees.staging;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -28,14 +28,14 @@ import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.util.EventDispatcher;
 
-public class BitbucketBuildListener {
-    private static final Logger LOGGER = Logger.getLogger(BitbucketBuildListener.class.getName());
+public class StagingBuildListener {
+    private static final Logger LOGGER = Logger.getLogger(StagingBuildListener.class.getName());
 
-    private final PullRequestCommentHandler commentHandler;
+    private final TomcatDeployHandler deployHandler;
 
-    public BitbucketBuildListener(EventDispatcher<BuildServerListener> listener,
-                                  PullRequestCommentHandler commentHandler) {
-        this.commentHandler = commentHandler;
+    public StagingBuildListener(EventDispatcher<BuildServerListener> listener,
+                                TomcatDeployHandler deployHandler) {
+        this.deployHandler = deployHandler;
         listener.addListener(new BuildServerAdapter() {
             @Override
             public void buildFinished(SRunningBuild build) {
@@ -55,13 +55,13 @@ public class BitbucketBuildListener {
         }
 
         for (BuildTriggerDescriptor trigger : buildType.getResolvedSettings().getBuildTriggersCollection()) {
-            if (!trigger.getType().equals(BitbucketPullRequestFeature.NAME)) {
+            if (!trigger.getType().equals(TomcatStagingFeature.NAME)) {
                 continue;
             }
 
             Branch branch = build.getBranch();
             if (branch != null) {
-                commentHandler.handle(build, trigger);
+                deployHandler.handle(build, trigger);
             } else {
                 LOGGER.severe("Unknown branch name");
             }

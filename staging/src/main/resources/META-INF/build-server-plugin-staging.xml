@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="constructor">
+    <bean class="com.arcbees.staging.Constants"/>
+    <bean class="com.arcbees.staging.StagingBuildListener"/>
+    <bean class="com.arcbees.staging.TomcatDeployHandler"/>
+    <bean class="com.arcbees.staging.TomcatStagingPropertiesProcessor"/>
+    <bean class="com.arcbees.staging.TomcatStagingTrigger"/>
+    <bean class="com.arcbees.staging.TomcatStagingFeature"/>
+    <bean class="com.arcbees.staging.TomcatManagerFactoryImpl"/>
+</beans>

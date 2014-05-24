@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,7 +16,7 @@
 
 package com.arcbees.bitbucket;
 
-public class Constants {
+public class BitbucketConstants {
     private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
     private static final String BUILD_FAILURE = "BUILD FAILURE ";
     private static final String BITBUCKET_URL = "https://bitbucket.org";

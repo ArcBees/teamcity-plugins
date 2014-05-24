@@ -1,7 +1,7 @@
 <%@ include file="/include.jsp" %>
 <%@ include file="/include-internal.jsp" %>
 
-<jsp:useBean id="keys" class="com.arcbees.bitbucket.Constants"/>
+<jsp:useBean id="keys" class="com.arcbees.bitbucket.BitbucketConstants"/>
 <jsp:useBean id="propertiesBean" type="jetbrains.buildServer.controllers.BasePropertiesBean" scope="request"/>
 
 <script>

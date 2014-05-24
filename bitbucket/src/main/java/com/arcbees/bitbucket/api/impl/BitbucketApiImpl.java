@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -86,9 +86,26 @@ public class BitbucketApiImpl implements BitbucketApi {
     }
 
     @Override
-    public PullRequest getPullRequestForBranch(final String branchName) throws IOException {
-        PullRequests pullRequests = getOpenedPullRequests();
+    public PullRequests getMergedPullRequests() throws IOException {
+        String requestUrl = apiPaths.getMergedPullRequests(repositoryOwner, repositoryName);
 
+        HttpGet request = new HttpGet(requestUrl);
+
+        return processResponse(request, PullRequests.class);
+    }
+
+    @Override
+    public PullRequest getPullRequestForBranch(final String branchName) throws IOException {
+        PullRequest pullRequestForBranch = findPullRequestForBranch(branchName, getOpenedPullRequests());
+
+        if (pullRequestForBranch == null) {
+            pullRequestForBranch = findPullRequestForBranch(branchName, getMergedPullRequests());
+        }
+
+        return pullRequestForBranch;
+    }
+
+    private PullRequest findPullRequestForBranch(final String branchName, PullRequests pullRequests) {
         return Iterables.tryFind(pullRequests.getPullRequests(), new Predicate<PullRequest>() {
             @Override
             public boolean apply(PullRequest pullRequest) {
@@ -157,7 +174,7 @@ public class BitbucketApiImpl implements BitbucketApi {
             try {
                 return readEntity(clazz, entity);
             } finally {
-                EntityUtils.consume(entity);
+                EntityUtils.consumeQuietly(entity);
             }
         } finally {
             request.abort();

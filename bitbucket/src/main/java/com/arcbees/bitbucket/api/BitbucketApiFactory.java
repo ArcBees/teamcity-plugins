@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,8 +16,8 @@
 
 package com.arcbees.bitbucket.api;
 
-import com.arcbees.bitbucket.PropertiesHelper;
+import com.arcbees.bitbucket.BitbucketPropertiesHelper;
 
 public interface BitbucketApiFactory {
-    BitbucketApi create(PropertiesHelper propertiesHelper);
+    BitbucketApi create(BitbucketPropertiesHelper bitbucketPropertiesHelper);
 }

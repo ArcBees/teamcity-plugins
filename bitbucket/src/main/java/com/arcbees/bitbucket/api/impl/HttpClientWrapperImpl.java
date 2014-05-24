@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,21 +17,19 @@
 package com.arcbees.bitbucket.api.impl;
 
 import java.io.IOException;
-import java.net.ProxySelector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.RequestAcceptEncoding;
 import org.apache.http.client.protocol.ResponseContentEncoding;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import jetbrains.buildServer.version.ServerVersionHolder;
 
@@ -41,34 +39,35 @@ public class HttpClientWrapperImpl implements HttpClientWrapper {
 
     private final HttpClient httpClient;
 
+    private PoolingHttpClientConnectionManager connectionManager;
+
     public HttpClientWrapperImpl() {
         httpClient = initHttpClient();
     }
 
-    private DefaultHttpClient initHttpClient() {
-        HttpParams httpParams = getHttpParams();
-
-        DefaultHttpClient httpclient = new DefaultHttpClient(new PoolingClientConnectionManager(), httpParams);
-        httpclient.setRoutePlanner(new ProxySelectorRoutePlanner(httpclient.getConnectionManager().getSchemeRegistry(),
-                ProxySelector.getDefault()));
-        httpclient.addRequestInterceptor(new RequestAcceptEncoding());
-        httpclient.addResponseInterceptor(new ResponseContentEncoding());
-        httpclient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(RETRY_COUNT, true));
-
-        return httpclient;
-    }
-
-    private HttpParams getHttpParams() {
-        HttpParams httpParams = new BasicHttpParams();
-
-        DefaultHttpClient.setDefaultHttpParams(httpParams);
-        HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT);
-        HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT);
+    private CloseableHttpClient initHttpClient() {
+        RequestConfig requestConfig = getRequestConfig();
 
         String serverVersion = ServerVersionHolder.getVersion().getDisplayVersion();
-        HttpProtocolParams.setUserAgent(httpParams, "JetBrains TeamCity " + serverVersion);
 
-        return httpParams;
+        connectionManager = new PoolingHttpClientConnectionManager();
+
+        return HttpClientBuilder.create()
+                .useSystemProperties()
+                .addInterceptorFirst(new RequestAcceptEncoding())
+                .addInterceptorFirst(new ResponseContentEncoding())
+                .setRetryHandler(new DefaultHttpRequestRetryHandler(RETRY_COUNT, true))
+                .setConnectionManager(connectionManager)
+                .setDefaultRequestConfig(requestConfig)
+                .setUserAgent("JetBrains TeamCity " + serverVersion)
+                .build();
+    }
+
+    private RequestConfig getRequestConfig() {
+        return RequestConfig.custom()
+                .setConnectTimeout(TIMEOUT)
+                .setSocketTimeout(TIMEOUT)
+                .build();
     }
 
     public HttpResponse execute(HttpUriRequest request) throws IOException {
@@ -81,6 +80,6 @@ public class HttpClientWrapperImpl implements HttpClientWrapper {
     }
 
     public void shutdown() {
-        httpClient.getConnectionManager().shutdown();
+        connectionManager.shutdown();
     }
 }

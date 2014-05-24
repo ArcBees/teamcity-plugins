@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,27 +16,27 @@
 
 package com.arcbees.bitbucket.api.impl;
 
-import com.arcbees.bitbucket.Constants;
-import com.arcbees.bitbucket.PropertiesHelper;
+import com.arcbees.bitbucket.BitbucketConstants;
+import com.arcbees.bitbucket.BitbucketPropertiesHelper;
 import com.arcbees.bitbucket.api.BitbucketApi;
 import com.arcbees.bitbucket.api.BitbucketApiFactory;
 
 public class BitbucketApiFactoryImpl implements BitbucketApiFactory {
     private final HttpClientWrapper httpClient;
-    private final Constants constants;
+    private final BitbucketConstants bitbucketConstants;
 
     public BitbucketApiFactoryImpl(HttpClientWrapper httpClient,
-                                   Constants constants) {
+                                   BitbucketConstants bitbucketConstants) {
         this.httpClient = httpClient;
-        this.constants = constants;
+        this.bitbucketConstants = bitbucketConstants;
     }
 
     @Override
-    public BitbucketApi create(PropertiesHelper propertiesHelper) {
-        return new BitbucketApiImpl(httpClient, new BitbucketApiPaths(constants.getServerUrl()),
-                propertiesHelper.getUserName(),
-                propertiesHelper.getPassword(),
-                propertiesHelper.getRepositoryOwner(),
-                propertiesHelper.getRepositoryName());
+    public BitbucketApi create(BitbucketPropertiesHelper bitbucketPropertiesHelper) {
+        return new BitbucketApiImpl(httpClient, new BitbucketApiPaths(bitbucketConstants.getServerUrl()),
+                bitbucketPropertiesHelper.getUserName(),
+                bitbucketPropertiesHelper.getPassword(),
+                bitbucketPropertiesHelper.getRepositoryOwner(),
+                bitbucketPropertiesHelper.getRepositoryName());
     }
 }

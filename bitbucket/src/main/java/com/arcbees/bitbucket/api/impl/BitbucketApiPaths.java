@@ -1,5 +1,5 @@
-/*
- * Copyright 2013 ArcBees Inc.
+/**
+ * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,6 +23,7 @@ public class BitbucketApiPaths {
     private static final String PULLREQUESTS = "/pullrequests/";
     private static final String COMMENTS = "/comments";
     private static final String SLASH = "/";
+    private static final String STATE_MERGED = "?state=MERGED";
 
     private final String baseUrl;
 
@@ -36,7 +37,11 @@ public class BitbucketApiPaths {
 
     public String getOpenedPullRequests(String repositoryOwner,
                                         String repositoryName) {
-        return baseUrl + API_2 + REPOSITORIES + repositoryOwner + SLASH + repositoryName + PULLREQUESTS;
+        return getPullRequests(repositoryOwner, repositoryName);
+    }
+
+    public String getMergedPullRequests(String repositoryOwner, String repositoryName) {
+        return getPullRequests(repositoryOwner, repositoryName) + STATE_MERGED;
     }
 
     public String getPullRequest(String repositoryOwner,
@@ -57,6 +62,10 @@ public class BitbucketApiPaths {
                                 Long commentId) {
         return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId)
                 + COMMENTS + SLASH + commentId;
+    }
+
+    private String getPullRequests(String repositoryOwner, String repositoryName) {
+        return baseUrl + API_2 + REPOSITORIES + repositoryOwner + SLASH + repositoryName + PULLREQUESTS;
     }
 
     private String pathToPullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
