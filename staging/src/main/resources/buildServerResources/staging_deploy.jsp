@@ -2,7 +2,6 @@
 <%@ include file="/include-internal.jsp" %>
 
 <jsp:useBean id="keys" class="com.arcbees.staging.Constants"/>
-<jsp:useBean id="bitbucketKeys" class="com.arcbees.bitbucket.BitbucketConstants"/>
 <jsp:useBean id="propertiesBean" type="jetbrains.buildServer.controllers.BasePropertiesBean" scope="request"/>
 
 <script>
@@ -29,45 +28,7 @@
     }
 </script>
 
-<tr>
-    <td colspan="2">Specify Bitbucket repository name and credentials</td>
-</tr>
-<l:settingsGroup title="Authentication">
-    <tr>
-        <th>User Name:<l:star/></th>
-        <td>
-            <props:textProperty name="${bitbucketKeys.userNameKey}" className="longField"/>
-            <span class="error" id="error_${bitbucketKeys.userNameKey}"></span>
-            <span class="smallNote">Bitbucket user name</span>
-        </td>
-    </tr>
-    <tr>
-        <th>Password:<l:star/></th>
-        <td>
-            <props:passwordProperty name="${bitbucketKeys.passwordKey}" className="longField"/>
-            <span class="error" id="error_${bitbucketKeys.passwordKey}"></span>
-            <span class="smallNote">Bitbucket password</span>
-        </td>
-    </tr>
-</l:settingsGroup>
-<l:settingsGroup title="Repository">
-    <tr>
-        <th>Owner:<l:star/></th>
-        <td>
-            <props:textProperty name="${bitbucketKeys.repositoryOwnerKey}" className="longField"/>
-            <span class="error" id="error_${bitbucketKeys.repositoryOwnerKey}"></span>
-            <span class="smallNote">Bitbucket repository owner (user or organization)</span>
-        </td>
-    </tr>
-    <tr>
-        <th>Repository:<l:star/></th>
-        <td>
-            <props:textProperty name="${bitbucketKeys.repositoryNameKey}" className="longField"/>
-            <span class="error" id="error_${bitbucketKeys.repositoryNameKey}"></span>
-            <span class="smallNote">Bitbucket repository name</span>
-        </td>
-    </tr>
-</l:settingsGroup>
+<%@ include file="/vcsSettings.jsp" %>
 <tr>
     <td colspan="2">Specify Tomcat Manager URL and credentials</td>
 </tr>

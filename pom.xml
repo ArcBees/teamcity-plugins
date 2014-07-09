@@ -11,7 +11,7 @@
     <name>Plugins</name>
 
     <modules>
-        <module>bitbucket</module>
+        <module>vcs-utils</module>
         <module>pullrequests</module>
         <module>staging</module>
     </modules>

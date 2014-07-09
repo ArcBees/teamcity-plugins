@@ -16,8 +16,8 @@
 
 package com.arcbees.staging;
 
-import com.arcbees.bitbucket.model.Comment;
-import com.arcbees.bitbucket.model.PullRequest;
+import com.arcbees.vcs.model.Comment;
+import com.arcbees.vcs.model.PullRequest;
 
 public class TomcatStagingDeploy {
     private final PullRequest pullRequest;

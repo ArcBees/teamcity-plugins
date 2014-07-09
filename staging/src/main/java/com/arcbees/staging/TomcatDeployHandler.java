@@ -32,13 +32,13 @@ import org.apache.tomcat.maven.common.deployer.TomcatManagerException;
 import org.apache.tomcat.maven.common.deployer.TomcatManagerResponse;
 import org.jetbrains.annotations.NotNull;
 
-import com.arcbees.bitbucket.BitbucketConstants;
-import com.arcbees.bitbucket.BitbucketPropertiesHelper;
-import com.arcbees.bitbucket.api.BitbucketApi;
-import com.arcbees.bitbucket.api.BitbucketApiFactory;
-import com.arcbees.bitbucket.model.Comment;
-import com.arcbees.bitbucket.model.PullRequest;
-import com.arcbees.bitbucket.util.JsonCustomDataStorage;
+import com.arcbees.vcs.VcsApi;
+import com.arcbees.vcs.VcsApiFactories;
+import com.arcbees.vcs.VcsConstants;
+import com.arcbees.vcs.VcsPropertiesHelper;
+import com.arcbees.vcs.model.Comment;
+import com.arcbees.vcs.model.PullRequest;
+import com.arcbees.vcs.util.JsonCustomDataStorage;
 import com.google.common.collect.Lists;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
@@ -54,18 +54,18 @@ public class TomcatDeployHandler {
     private static final Logger LOGGER = Logger.getLogger(TomcatDeployHandler.class.getName());
     private static final String COMMENT_WEBAPP = "WebApp URL : ";
 
-    private final BitbucketApiFactory bitbucketApiFactory;
+    private final VcsApiFactories vcsApiFactories;
     private final TomcatManagerFactory tomcatManagerFactory;
-    private final BitbucketConstants bitbucketConstants;
+    private final VcsConstants vcsConstants;
     private final Constants constants;
 
-    public TomcatDeployHandler(BitbucketApiFactory bitbucketApiFactory,
+    public TomcatDeployHandler(VcsApiFactories vcsApiFactories,
                                TomcatManagerFactory tomcatManagerFactory,
-                               BitbucketConstants bitbucketConstants,
+                               VcsConstants vcsConstants,
                                Constants constants) {
-        this.bitbucketApiFactory = bitbucketApiFactory;
+        this.vcsApiFactories = vcsApiFactories;
         this.tomcatManagerFactory = tomcatManagerFactory;
-        this.bitbucketConstants = bitbucketConstants;
+        this.vcsConstants = vcsConstants;
         this.constants = constants;
     }
 
@@ -74,23 +74,22 @@ public class TomcatDeployHandler {
         if (branch != null && build.getBuildStatus().isSuccessful()) {
             SBuildType buildType = build.getBuildType();
 
-            BitbucketPropertiesHelper bitbucketPropertiesHelper =
-                    new BitbucketPropertiesHelper(trigger.getProperties(), bitbucketConstants);
-            BitbucketApi bitbucketApi = bitbucketApiFactory.create(bitbucketPropertiesHelper);
+            VcsPropertiesHelper vcsPropertiesHelper = new VcsPropertiesHelper(trigger.getProperties(), vcsConstants);
+            VcsApi vcsApi = vcsApiFactories.create(vcsPropertiesHelper);
 
-            PullRequest pullRequest = bitbucketApi.getPullRequestForBranch(branch.getName());
+            PullRequest pullRequest = vcsApi.getPullRequestForBranch(branch.getName());
 
             JsonCustomDataStorage<TomcatStagingDeploy> dataStorage = getJsonDataStorage(buildType, trigger);
             StagingPropertiesHelper stagingPropertiesHelper =
                     new StagingPropertiesHelper(trigger.getProperties(), constants);
 
             TomcatStagingDeploy stagingDeploy =
-                    getTomcatStagingDeploy(bitbucketPropertiesHelper, pullRequest, dataStorage);
+                    getTomcatStagingDeploy(vcsPropertiesHelper, pullRequest, dataStorage);
 
             deploy(build, stagingPropertiesHelper, stagingDeploy);
-            postComment(bitbucketApi, pullRequest, stagingDeploy);
+            postComment(vcsApi, pullRequest, stagingDeploy);
 
-            dataStorage.putValue(getPullRequestKey(bitbucketPropertiesHelper, pullRequest), stagingDeploy);
+            dataStorage.putValue(getPullRequestKey(vcsPropertiesHelper, pullRequest), stagingDeploy);
         }
     }
 
@@ -155,24 +154,24 @@ public class TomcatDeployHandler {
         }
     }
 
-    private Comment postComment(BitbucketApi bitbucketApi,
+    private Comment postComment(VcsApi vcsApi,
                                 PullRequest pullRequest,
                                 TomcatStagingDeploy stagingDeploy) throws IOException {
         Comment comment = stagingDeploy.getComment();
 
         if (comment == null && stagingDeploy.isDeployed()) {
-            comment = bitbucketApi.postComment(pullRequest.getId(), getComment(stagingDeploy));
+            comment = vcsApi.postComment(pullRequest.getId(), getComment(stagingDeploy));
             stagingDeploy.setComment(comment);
         }
 
         return comment;
     }
 
-    private TomcatStagingDeploy getTomcatStagingDeploy(BitbucketPropertiesHelper bitbucketPropertiesHelper,
+    private TomcatStagingDeploy getTomcatStagingDeploy(VcsPropertiesHelper vcsPropertiesHelper,
                                                        PullRequest pullRequest,
                                                        JsonCustomDataStorage<TomcatStagingDeploy> dataStorage) {
-        String pullRequestKey = getPullRequestKey(bitbucketPropertiesHelper.getRepositoryOwner(),
-                bitbucketPropertiesHelper.getRepositoryName(), pullRequest);
+        String pullRequestKey = getPullRequestKey(vcsPropertiesHelper.getRepositoryOwner(),
+                vcsPropertiesHelper.getRepositoryName(), pullRequest);
 
         TomcatStagingDeploy stagingDeploy = dataStorage.getValue(pullRequestKey);
 
@@ -191,12 +190,12 @@ public class TomcatDeployHandler {
         return JsonCustomDataStorage.create(customDataStorage, TomcatStagingDeploy.class);
     }
 
-    private String getPullRequestKey(BitbucketPropertiesHelper helper, PullRequest pullRequest) {
+    private String getPullRequestKey(VcsPropertiesHelper helper, PullRequest pullRequest) {
         return getPullRequestKey(helper.getRepositoryOwner(), helper.getRepositoryName(), pullRequest);
     }
 
     private String getPullRequestKey(String repositoryOwner, String repositoryName, PullRequest pullRequest) {
-        return bitbucketConstants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_" + pullRequest
+        return vcsConstants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_" + pullRequest
                 .getId();
     }
 

@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.arcbees.teamcity</groupId>
-            <artifactId>bitbucket</artifactId>
+            <artifactId>vcs-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
