@@ -107,7 +107,7 @@ public class StashApiImpl extends AbstractVcsApi {
         HttpResponse response = null;
         try {
             response = httpClient.execute(request);
-            if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
+            if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_NO_CONTENT) {
                 throw new IOException("Failed to complete request to Stash. Status: " + response.getStatusLine());
             }
         } finally {
