@@ -32,20 +32,19 @@ public class PolymorphicTypeAdapter<T> implements JsonSerializer<T>, JsonDeseria
     private static final String VALUE = "@value";
 
     @Override
-    public T deserialize(JsonElement json, Type type, JsonDeserializationContext context)
-            throws JsonParseException {
+    public T deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(CLASSNAME);
-        String className = prim.getAsString();
+        JsonPrimitive jsonPrimitive = (JsonPrimitive) jsonObject.get(CLASSNAME);
+        String className = jsonPrimitive.getAsString();
 
-        Class<?> klass;
+        Class<?> clazz;
         try {
-            klass = Class.forName(className);
+            clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new JsonParseException(e.getMessage());
         }
 
-        return context.deserialize(jsonObject.get(VALUE), klass);
+        return context.deserialize(jsonObject.get(VALUE), clazz);
     }
 
     @Override
@@ -55,8 +54,8 @@ public class PolymorphicTypeAdapter<T> implements JsonSerializer<T>, JsonDeseria
         String className = src.getClass().getCanonicalName();
         retValue.addProperty(CLASSNAME, className);
 
-        JsonElement elem = context.serialize(src);
-        retValue.add(VALUE, elem);
+        JsonElement jsonElement = context.serialize(src);
+        retValue.add(VALUE, jsonElement);
 
         return retValue;
     }
