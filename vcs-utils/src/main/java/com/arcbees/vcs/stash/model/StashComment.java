@@ -22,6 +22,7 @@ import com.arcbees.vcs.model.Comment;
 public class StashComment implements Comment {
     private Long id;
     private String text;
+    private String version;
 
     public StashComment() {
     }
@@ -46,5 +47,13 @@ public class StashComment implements Comment {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

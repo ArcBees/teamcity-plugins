@@ -40,6 +40,7 @@ import com.arcbees.vcs.stash.model.StashComment;
 import com.arcbees.vcs.stash.model.StashPullRequests;
 import com.arcbees.vcs.util.GsonDateTypeAdapter;
 import com.arcbees.vcs.util.HttpClientWrapper;
+import com.arcbees.vcs.util.UnexpectedHttpStatusException;
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -97,22 +98,27 @@ public class StashApiImpl extends AbstractVcsApi {
 
     @Override
     public void deleteComment(Integer pullRequestId, Long commentId) throws IOException {
-        String requestUrl = apiPaths.deleteComment(repositoryOwner, repositoryName, pullRequestId, commentId);
+        StashComment oldComment = getComment(pullRequestId, commentId);
 
-        HttpDelete request = new HttpDelete(requestUrl);
+        if (oldComment != null) {
+            String requestUrl = apiPaths.pullRequestComment(repositoryOwner, repositoryName, pullRequestId, commentId)
+                    + "?version=" + oldComment.getVersion();
 
-        includeAuthentication(request, credentials);
-        setDefaultHeaders(request);
+            HttpDelete request = new HttpDelete(requestUrl);
 
-        HttpResponse response = null;
-        try {
-            response = httpClient.execute(request);
-            if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-                throw new IOException("Failed to complete request to Stash. Status: " + response.getStatusLine());
-            }
-        } finally {
-            if (response != null) {
-                EntityUtils.consumeQuietly(response.getEntity());
+            includeAuthentication(request, credentials);
+            setDefaultHeaders(request);
+
+            HttpResponse response = null;
+            try {
+                response = httpClient.execute(request);
+                if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_NO_CONTENT) {
+                    throw new IOException("Failed to complete request to Stash. Status: " + response.getStatusLine());
+                }
+            } finally {
+                if (response != null) {
+                    EntityUtils.consumeQuietly(response.getEntity());
+                }
             }
         }
     }
@@ -127,5 +133,20 @@ public class StashApiImpl extends AbstractVcsApi {
         request.setEntity(new ByteArrayEntity(gson.toJson(new StashComment(comment)).getBytes(Charsets.UTF_8)));
 
         return processResponse(httpClient, request, credentials, gson, StashComment.class);
+    }
+
+    private StashComment getComment(Integer pullRequestId, Long commentId) throws IOException {
+        String requestUrl = apiPaths.pullRequestComment(repositoryOwner, repositoryName, pullRequestId, commentId);
+
+        HttpGet request = new HttpGet(requestUrl);
+
+        includeAuthentication(request, credentials);
+        setDefaultHeaders(request);
+
+        try {
+            return processResponse(httpClient, request, credentials, gson, StashComment.class);
+        } catch (UnexpectedHttpStatusException e) {
+            return null;
+        }
     }
 }

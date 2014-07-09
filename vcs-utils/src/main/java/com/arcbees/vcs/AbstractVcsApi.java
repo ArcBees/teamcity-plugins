@@ -38,6 +38,7 @@ import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequestTarget;
 import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.util.HttpClientWrapper;
+import com.arcbees.vcs.util.UnexpectedHttpStatusException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
@@ -54,13 +55,13 @@ public abstract class AbstractVcsApi implements VcsApi {
             HttpResponse execute = httpClient.execute(request);
             int statusCode = execute.getStatusLine().getStatusCode();
             if (statusCode != HttpURLConnection.HTTP_OK && statusCode != HttpURLConnection.HTTP_CREATED) {
-                throw new IOException("Failed to complete request. Status: " + execute.getStatusLine());
+                throw new UnexpectedHttpStatusException(statusCode,
+                        "Failed to complete request. Status: " + execute.getStatusLine());
             }
 
             HttpEntity entity = execute.getEntity();
             if (entity == null) {
-                throw new IOException(
-                        "Failed to complete request. Empty response. Status: " + execute.getStatusLine());
+                throw new IOException("Failed to complete request. Empty response. Status: " + execute.getStatusLine());
             }
 
             try {

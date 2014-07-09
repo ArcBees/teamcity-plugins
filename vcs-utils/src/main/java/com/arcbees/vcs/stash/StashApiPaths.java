@@ -56,10 +56,10 @@ public class StashApiPaths {
         return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + COMMENTS;
     }
 
-    public String deleteComment(String repositoryOwner,
-                                String repositoryName,
-                                Integer pullRequestId,
-                                Long commentId) {
+    public String pullRequestComment(String repositoryOwner,
+                                     String repositoryName,
+                                     Integer pullRequestId,
+                                     Long commentId) {
         return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId)
                 + COMMENTS + SLASH + commentId;
     }
