@@ -29,14 +29,14 @@ import org.apache.tomcat.maven.common.deployer.TomcatManagerException;
 import org.apache.tomcat.maven.common.deployer.TomcatManagerResponse;
 import org.jetbrains.annotations.NotNull;
 
-import com.arcbees.bitbucket.BitbucketConstants;
-import com.arcbees.bitbucket.BitbucketPropertiesHelper;
-import com.arcbees.bitbucket.api.BitbucketApi;
-import com.arcbees.bitbucket.api.BitbucketApiFactory;
-import com.arcbees.bitbucket.model.PullRequest;
-import com.arcbees.bitbucket.model.PullRequestTarget;
-import com.arcbees.bitbucket.model.PullRequests;
-import com.arcbees.bitbucket.util.JsonCustomDataStorage;
+import com.arcbees.vcs.VcsApi;
+import com.arcbees.vcs.VcsApiFactories;
+import com.arcbees.vcs.VcsConstants;
+import com.arcbees.vcs.VcsPropertiesHelper;
+import com.arcbees.vcs.model.PullRequest;
+import com.arcbees.vcs.model.PullRequestTarget;
+import com.arcbees.vcs.model.PullRequests;
+import com.arcbees.vcs.util.JsonCustomDataStorage;
 import com.google.common.base.Strings;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
@@ -47,19 +47,19 @@ import jetbrains.buildServer.buildTriggers.PolledTriggerContext;
 public class TomcatStagingTrigger extends PolledBuildTrigger {
     private static final Logger LOGGER = Logger.getLogger(TomcatStagingTrigger.class.getName());
 
-    private final BitbucketApiFactory apiFactory;
+    private final VcsApiFactories vcsApiFactories;
     private final TomcatManagerFactory tomcatManagerFactory;
     private final Constants constants;
-    private final BitbucketConstants bitbucketConstants;
+    private final VcsConstants vcsConstants;
 
-    public TomcatStagingTrigger(BitbucketApiFactory apiFactory,
+    public TomcatStagingTrigger(VcsApiFactories vcsApiFactories,
                                 TomcatManagerFactory tomcatManagerFactory,
                                 Constants constants,
-                                BitbucketConstants bitbucketConstants) {
-        this.apiFactory = apiFactory;
+                                VcsConstants vcsConstants) {
+        this.vcsApiFactories = vcsApiFactories;
         this.tomcatManagerFactory = tomcatManagerFactory;
         this.constants = constants;
-        this.bitbucketConstants = bitbucketConstants;
+        this.vcsConstants = vcsConstants;
     }
 
     @Override
@@ -83,16 +83,15 @@ public class TomcatStagingTrigger extends PolledBuildTrigger {
     private void checkBranchesToUndeploy(PolledTriggerContext context, Map<String, String> properties,
                                          StagingPropertiesHelper stagingPropertiesHelper, String mergeBranch)
             throws IOException {
-        BitbucketPropertiesHelper bitbucketPropertiesHelper =
-                new BitbucketPropertiesHelper(properties, bitbucketConstants);
-        String repositoryOwner = bitbucketPropertiesHelper.getRepositoryOwner();
-        String repositoryName = bitbucketPropertiesHelper.getRepositoryName();
+        VcsPropertiesHelper vcsPropertiesHelper = new VcsPropertiesHelper(properties, vcsConstants);
+        String repositoryOwner = vcsPropertiesHelper.getRepositoryOwner();
+        String repositoryName = vcsPropertiesHelper.getRepositoryName();
 
         JsonCustomDataStorage<TomcatStagingDeploy> dataStorage =
                 JsonCustomDataStorage.create(context.getCustomDataStorage(), TomcatStagingDeploy.class);
         TomcatManager tomcatManager = createTomcatManager(stagingPropertiesHelper);
 
-        PullRequests pullRequests = getMergedPullRequests(bitbucketPropertiesHelper);
+        PullRequests<? extends PullRequest> pullRequests = getMergedPullRequests(vcsPropertiesHelper);
         for (PullRequest pullRequest : pullRequests.getPullRequests()) {
             if (isTargetMergeBranch(mergeBranch, pullRequest)) {
                 String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
@@ -106,10 +105,10 @@ public class TomcatStagingTrigger extends PolledBuildTrigger {
         }
     }
 
-    private PullRequests getMergedPullRequests(BitbucketPropertiesHelper bitbucketPropertiesHelper) throws IOException {
-        BitbucketApi bitbucketApi = apiFactory.create(bitbucketPropertiesHelper);
+    private PullRequests getMergedPullRequests(VcsPropertiesHelper vcsPropertiesHelper) throws IOException {
+        VcsApi vcsApi = vcsApiFactories.create(vcsPropertiesHelper);
 
-        return bitbucketApi.getMergedPullRequests();
+        return vcsApi.getMergedPullRequests();
     }
 
     private TomcatStagingDeploy getTomcatStagingDeploy(JsonCustomDataStorage<TomcatStagingDeploy> dataStorage,
@@ -148,6 +147,8 @@ public class TomcatStagingTrigger extends PolledBuildTrigger {
             TomcatManagerResponse response = tomcatManager.undeploy(webPath);
             int statusCode = response.getStatusCode();
 
+            LOGGER.info("Undeploying Status : " + statusCode);
+
             success = HttpStatus.SC_OK == statusCode || HttpStatus.SC_NOT_FOUND == statusCode;
         } catch (TomcatManagerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -170,7 +171,7 @@ public class TomcatStagingTrigger extends PolledBuildTrigger {
     }
 
     private String getPullRequestKey(String repositoryOwner, String repositoryName, PullRequest pullRequest) {
-        return bitbucketConstants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_"
+        return vcsConstants.getPullRequestKey() + repositoryOwner + "_" + repositoryName + "_"
                 + pullRequest.getId();
     }
 }
