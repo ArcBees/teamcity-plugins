@@ -1,7 +1,7 @@
 <%@ include file="/include.jsp" %>
 <%@ include file="/include-internal.jsp" %>
 
-<jsp:useBean id="keys" class="com.arcbees.staging.Constants"/>
+<jsp:useBean id="stagingKeys" class="com.arcbees.staging.Constants"/>
 <jsp:useBean id="propertiesBean" type="jetbrains.buildServer.controllers.BasePropertiesBean" scope="request"/>
 
 <script>
@@ -28,7 +28,7 @@
     }
 </script>
 
-<%@ include file="/vcsSettings.jsp" %>
+<%@ include file="vcsSettings.jsp" %>
 <tr>
     <td colspan="2">Specify Tomcat Manager URL and credentials</td>
 </tr>
@@ -36,24 +36,24 @@
     <tr>
         <th>User Name:<l:star/></th>
         <td>
-            <props:textProperty name="${keys.userNameKey}" className="longField"/>
-            <span class="error" id="error_${keys.userNameKey}"></span>
+            <props:textProperty name="${stagingKeys.userNameKey}" className="longField"/>
+            <span class="error" id="error_${stagingKeys.userNameKey}"></span>
             <span class="smallNote">Manager user name</span>
         </td>
     </tr>
     <tr>
         <th>Password:<l:star/></th>
         <td>
-            <props:passwordProperty name="${keys.passwordKey}" className="longField"/>
-            <span class="error" id="error_${keys.passwordKey}"></span>
+            <props:passwordProperty name="${stagingKeys.passwordKey}" className="longField"/>
+            <span class="error" id="error_${stagingKeys.passwordKey}"></span>
             <span class="smallNote">Manager password</span>
         </td>
     </tr>
     <tr>
         <th>Manager URL:<l:star/></th>
         <td>
-            <props:textProperty name="${keys.tomcatUrl}" className="longField"/>
-            <span class="error" id="error_${keys.tomcatUrl}"></span>
+            <props:textProperty name="${stagingKeys.tomcatUrl}" className="longField"/>
+            <span class="error" id="error_${stagingKeys.tomcatUrl}"></span>
             <span class="smallNote">Tomcat Manager URL (ie: http://url.com/manager/text)</span>
         </td>
     </tr>
@@ -62,16 +62,16 @@
     <tr>
         <th>Base Context Path:<l:star/></th>
         <td>
-            <props:textProperty name="${keys.baseContextKey}" className="longField"/>
-            <span class="error" id="error_${keys.baseContextKey}"></span>
+            <props:textProperty name="${stagingKeys.baseContextKey}" className="longField"/>
+            <span class="error" id="error_${stagingKeys.baseContextKey}"></span>
             <span class="smallNote">Base Context Path</span>
         </td>
     </tr>
     <tr>
         <th>Undeploy Branch:<l:star/></th>
         <td>
-            <props:textProperty name="${keys.tomcatMergeBranch}" className="longField"/>
-            <span class="error" id="error_${keys.tomcatMergeBranch}"></span>
+            <props:textProperty name="${stagingKeys.tomcatMergeBranch}" className="longField"/>
+            <span class="error" id="error_${stagingKeys.tomcatMergeBranch}"></span>
             <span class="smallNote">Undeploy when merged into this branch</span>
         </td>
     </tr>
