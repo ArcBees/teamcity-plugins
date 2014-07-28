@@ -34,11 +34,12 @@ import com.google.gson.JsonParseException;
 public class GsonDateTypeAdapter implements JsonDeserializer<Date> {
     private static final DateFormat DATE_TIME_FORMAT = DateFormat.getDateTimeInstance();
     private static final DateFormat DATE_TIME_LONG_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private static final DateFormat DATE_TIME_LONG_FORMAT_ALT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private static final Pattern DATE_TIME_LONG_FORMAT_PATTERN =
             Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}(\\d{3}).\\d{2}:\\d{2}");
     private static final DateFormat CUSTOM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
     private static final List<DateFormat> dateFormats =
-            Lists.newArrayList(DATE_TIME_LONG_FORMAT, DATE_TIME_FORMAT, CUSTOM_DATE_FORMAT);
+            Lists.newArrayList(DATE_TIME_LONG_FORMAT, DATE_TIME_FORMAT, CUSTOM_DATE_FORMAT, DATE_TIME_LONG_FORMAT_ALT);
 
     @Override
     public Date deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {

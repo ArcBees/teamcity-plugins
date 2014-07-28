@@ -19,6 +19,7 @@ package com.arcbees.vcs;
 import java.io.IOException;
 
 import com.arcbees.vcs.model.Comment;
+import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequests;
 
@@ -33,4 +34,7 @@ public interface VcsApi {
     PullRequest getPullRequestForBranch(String branchName) throws IOException;
 
     void deleteComment(Integer pullRequestId, Long commentId) throws IOException;
+
+    void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+            throws IOException, UnsupportedOperationException;
 }

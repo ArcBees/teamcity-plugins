@@ -34,6 +34,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.arcbees.vcs.AbstractVcsApi;
 import com.arcbees.vcs.model.Comment;
+import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.stash.model.StashComment;
@@ -133,6 +134,13 @@ public class StashApiImpl extends AbstractVcsApi {
         request.setEntity(new ByteArrayEntity(gson.toJson(new StashComment(comment)).getBytes(Charsets.UTF_8)));
 
         return processResponse(httpClient, request, credentials, gson, StashComment.class);
+    }
+
+    @Override
+    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+            throws IOException, UnsupportedOperationException {
+        // TODO : Implement
+        throw new UnsupportedOperationException();
     }
 
     private StashComment getComment(Integer pullRequestId, Long commentId) throws IOException {

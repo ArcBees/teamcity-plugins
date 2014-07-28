@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.jetbrains.annotations.NotNull;
+
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.serverSide.Branch;
 import jetbrains.buildServer.serverSide.BuildServerAdapter;
@@ -31,16 +33,34 @@ import jetbrains.buildServer.util.EventDispatcher;
 public class PullRequestsBuildListener {
     private static final Logger LOGGER = Logger.getLogger(PullRequestsBuildListener.class.getName());
 
-    private final PullRequestCommentHandler commentHandler;
+    private final PullRequestStatusHandler statusHandler;
 
     public PullRequestsBuildListener(EventDispatcher<BuildServerListener> listener,
-                                     PullRequestCommentHandler commentHandler) {
-        this.commentHandler = commentHandler;
+                                     PullRequestStatusHandler statusHandler) {
+        this.statusHandler = statusHandler;
         listener.addListener(new BuildServerAdapter() {
             @Override
-            public void buildFinished(SRunningBuild build) {
+            public void buildStarted(@NotNull SRunningBuild build) {
                 try {
-                    onBuildFinished(build);
+                    onBuildStatusChanged(build, BuildStatus.STARTING);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
+                }
+            }
+
+            @Override
+            public void buildInterrupted(@NotNull SRunningBuild build) {
+                try {
+                    onBuildStatusChanged(build, BuildStatus.INTERRUPTED);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
+                }
+            }
+
+            @Override
+            public void buildFinished(@NotNull SRunningBuild build) {
+                try {
+                    onBuildStatusChanged(build, BuildStatus.FINISHED);
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
                 }
@@ -48,23 +68,31 @@ public class PullRequestsBuildListener {
         });
     }
 
-    private void onBuildFinished(SRunningBuild build) throws IOException {
-        SBuildType buildType = build.getBuildType();
-        if (buildType == null) {
-            return;
-        }
+    private void onBuildStatusChanged(SRunningBuild build, BuildStatus buildStatus) throws IOException {
+        BuildTriggerDescriptor trigger = getTrigger(build);
 
-        for (BuildTriggerDescriptor trigger : buildType.getResolvedSettings().getBuildTriggersCollection()) {
-            if (!trigger.getType().equals(PullRequestsFeature.NAME)) {
-                continue;
-            }
-
+        if (trigger != null) {
             Branch branch = build.getBranch();
             if (branch != null) {
-                commentHandler.handle(build, trigger);
+                statusHandler.handle(build, trigger, buildStatus);
             } else {
                 LOGGER.severe("Unknown branch name");
             }
         }
+    }
+
+    private BuildTriggerDescriptor getTrigger(SRunningBuild build) {
+        SBuildType buildType = build.getBuildType();
+        if (buildType == null) {
+            return null;
+        }
+
+        for (BuildTriggerDescriptor trigger : buildType.getResolvedSettings().getBuildTriggersCollection()) {
+            if (trigger.getType().equals(PullRequestsFeature.NAME)) {
+                return trigger;
+            }
+        }
+
+        return null;
     }
 }

@@ -7,6 +7,9 @@
     <bean class="com.arcbees.vcs.stash.StashApiFactoryImpl"/>
     <bean class="com.arcbees.vcs.stash.StashVcsType"/>
 
+    <bean class="com.arcbees.vcs.github.GitHubApiFactoryImpl"/>
+    <bean class="com.arcbees.vcs.github.GitHubVcsType"/>
+
     <bean class="com.arcbees.vcs.util.HttpClientWrapperImpl" destroy-method="shutdown"/>
 
     <bean class="com.arcbees.vcs.VcsApiFactories"/>

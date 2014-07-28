@@ -44,24 +44,28 @@ import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 
 public abstract class AbstractVcsApi implements VcsApi {
+    protected HttpResponse executeRequest(HttpClientWrapper httpClient,
+                                          HttpUriRequest request,
+                                          Credentials credentials) throws IOException {
+        try {
+            return doExecuteRequest(httpClient, request, credentials);
+        } finally {
+            request.abort();
+        }
+    }
+
     protected <T> T processResponse(HttpClientWrapper httpClient,
                                     HttpUriRequest request,
                                     Credentials credentials,
                                     Gson gson,
                                     Class<T> clazz) throws IOException {
-        includeAuthentication(request, credentials);
-        setDefaultHeaders(request);
         try {
-            HttpResponse execute = httpClient.execute(request);
-            int statusCode = execute.getStatusLine().getStatusCode();
-            if (statusCode != HttpURLConnection.HTTP_OK && statusCode != HttpURLConnection.HTTP_CREATED) {
-                throw new UnexpectedHttpStatusException(statusCode,
-                        "Failed to complete request. Status: " + execute.getStatusLine());
-            }
+            HttpResponse httpResponse = doExecuteRequest(httpClient, request, credentials);
 
-            HttpEntity entity = execute.getEntity();
+            HttpEntity entity = httpResponse.getEntity();
             if (entity == null) {
-                throw new IOException("Failed to complete request. Empty response. Status: " + execute.getStatusLine());
+                throw new IOException(
+                        "Failed to complete request. Empty response. Status: " + httpResponse.getStatusLine());
             }
 
             try {
@@ -107,5 +111,23 @@ public abstract class AbstractVcsApi implements VcsApi {
                 return pullRequestBranchName.equals(branchName);
             }
         }).orNull();
+    }
+
+    private HttpResponse doExecuteRequest(HttpClientWrapper httpClient, HttpUriRequest request, Credentials credentials)
+            throws IOException {
+        includeAuthentication(request, credentials);
+        setDefaultHeaders(request);
+
+        HttpResponse httpResponse = httpClient.execute(request);
+        int statusCode = httpResponse.getStatusLine().getStatusCode();
+        if (statusCode != HttpURLConnection.HTTP_OK && statusCode != HttpURLConnection.HTTP_CREATED) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            httpResponse.getEntity().writeTo(outputStream);
+            String json = outputStream.toString(CharEncoding.UTF_8);
+            throw new UnexpectedHttpStatusException(statusCode,
+                    "Failed to complete request. Status: " + httpResponse.getStatusLine() + '\n' + json);
+        }
+
+        return httpResponse;
     }
 }
