@@ -23,6 +23,8 @@ import com.arcbees.vcs.model.PullRequestTarget;
 public class GitHubPullRequestTarget implements PullRequestTarget<GitHubCommit, GitHubBranch> {
     private GitHubCommit commit;
     private GitHubBranch branch;
+
+    // For serialization
     private String sha;
     private String ref;
 

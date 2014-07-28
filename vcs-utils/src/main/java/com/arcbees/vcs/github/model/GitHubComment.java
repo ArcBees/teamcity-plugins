@@ -20,7 +20,7 @@ import com.arcbees.vcs.model.Comment;
 import com.google.gson.annotations.SerializedName;
 
 public class GitHubComment implements Comment {
-    @SerializedName("comment_id")
+    @SerializedName("id")
     private Long commentId;
 
     @Override

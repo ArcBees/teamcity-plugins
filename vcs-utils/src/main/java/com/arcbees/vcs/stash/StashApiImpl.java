@@ -18,11 +18,9 @@
 package com.arcbees.vcs.stash;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Date;
 
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -30,7 +28,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 
 import com.arcbees.vcs.AbstractVcsApi;
 import com.arcbees.vcs.model.Comment;
@@ -107,20 +104,7 @@ public class StashApiImpl extends AbstractVcsApi {
 
             HttpDelete request = new HttpDelete(requestUrl);
 
-            includeAuthentication(request, credentials);
-            setDefaultHeaders(request);
-
-            HttpResponse response = null;
-            try {
-                response = httpClient.execute(request);
-                if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-                    throw new IOException("Failed to complete request to Stash. Status: " + response.getStatusLine());
-                }
-            } finally {
-                if (response != null) {
-                    EntityUtils.consumeQuietly(response.getEntity());
-                }
-            }
+            executeRequest(httpClient, request, credentials);
         }
     }
 

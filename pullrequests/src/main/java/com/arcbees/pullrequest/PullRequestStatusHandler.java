@@ -104,6 +104,7 @@ public class PullRequestStatusHandler {
         try {
             String statusMessage = getStatusMessage(build, commitStatus);
             vcsApi.updateStatus(getSourceCommitHash(pullRequest), statusMessage, commitStatus, getTargetUrl(build));
+
             return null;
         } catch (UnsupportedOperationException e) {
             return postOrUpdateComment(build, vcsApi, pullRequest, pullRequestBuild);
@@ -122,9 +123,9 @@ public class PullRequestStatusHandler {
                     buildDescription = " : " + buildDescription;
                 }
 
-                return "TeamCity Build " + build.getFullName() + buildDescription;
+                return build.getFullName() + buildDescription;
             case PENDING:
-                return "TeamCity Build Started : " + build.getFullName();
+                return constants.getBuildStarted() + build.getFullName();
             default:
                 return "";
         }
