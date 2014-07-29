@@ -14,22 +14,27 @@
  * the License.
  */
 
-package com.arcbees.pullrequest;
+package com.arcbees.vcs.github.model;
 
-public class Constants {
-    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
-    private static final String BUILD_FAILURE = "BUILD FAILURE ";
-    private static final String BUILD_STARTED = "TeamCity Build Started : ";
+import com.arcbees.vcs.model.Commit;
 
-    public String getBuildSuccess() {
-        return BUILD_SUCCESS;
+public class GitHubCommit implements Commit {
+    private String hash;
+
+    public GitHubCommit() {
     }
 
-    public String getBuildFailure() {
-        return BUILD_FAILURE;
+    public GitHubCommit(String hash) {
+        this.hash = hash;
     }
 
-    public String getBuildStarted() {
-        return BUILD_STARTED;
+    @Override
+    public String getHash() {
+        return hash;
+    }
+
+    @Override
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 }

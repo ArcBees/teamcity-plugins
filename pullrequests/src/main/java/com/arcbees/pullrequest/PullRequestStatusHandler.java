@@ -26,8 +26,12 @@ import com.arcbees.vcs.VcsApiFactories;
 import com.arcbees.vcs.VcsConstants;
 import com.arcbees.vcs.VcsPropertiesHelper;
 import com.arcbees.vcs.model.Comment;
+import com.arcbees.vcs.model.Commit;
+import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
+import com.arcbees.vcs.model.PullRequestTarget;
 import com.arcbees.vcs.util.JsonCustomDataStorage;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
@@ -38,23 +42,24 @@ import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.serverSide.WebLinks;
 
-public class PullRequestCommentHandler {
+public class PullRequestStatusHandler {
     private final VcsApiFactories vcsApiFactories;
     private final VcsConstants vcsConstants;
     private final Constants constants;
     private final WebLinks webLinks;
 
-    public PullRequestCommentHandler(VcsApiFactories vcsApiFactories,
-                                     VcsConstants vcsConstants,
-                                     Constants constants,
-                                     WebLinks webLinks) {
+    public PullRequestStatusHandler(VcsApiFactories vcsApiFactories,
+                                    VcsConstants vcsConstants,
+                                    Constants constants,
+                                    WebLinks webLinks) {
         this.vcsApiFactories = vcsApiFactories;
         this.vcsConstants = vcsConstants;
         this.constants = constants;
         this.webLinks = webLinks;
     }
 
-    public void handle(SRunningBuild build, BuildTriggerDescriptor trigger) throws IOException {
+    public void handle(SRunningBuild build, BuildTriggerDescriptor trigger, BuildStatus buildStatus)
+            throws IOException {
         Branch branch = build.getBranch();
         if (branch != null) {
             SBuildType buildType = build.getBuildType();
@@ -68,24 +73,75 @@ public class PullRequestCommentHandler {
             PullRequestBuild pullRequestBuild =
                     getPullRequestBuild(vcsPropertiesHelper, pullRequest, dataStorage);
 
-            Comment comment = postOrUpdateComment(build, vcsApi, pullRequest, pullRequestBuild);
+            CommitStatus commitStatus = getCommitStatus(build.getBuildStatus(), buildStatus);
+            Comment comment = updateStatus(build, vcsApi, pullRequest, pullRequestBuild, commitStatus);
 
             pullRequestBuild = new PullRequestBuild(pullRequest, build.getBuildStatus(), comment);
             dataStorage.putValue(getPullRequestKey(vcsPropertiesHelper, pullRequest), pullRequestBuild);
         }
     }
 
+    private CommitStatus getCommitStatus(Status status, BuildStatus buildStatus) {
+        switch (buildStatus) {
+            case STARTING:
+                return CommitStatus.PENDING;
+            case FINISHED:
+                if (status.isSuccessful()) {
+                    return CommitStatus.SUCCESS;
+                } else {
+                    return CommitStatus.FAILURE;
+                }
+            default:
+                return CommitStatus.ERROR;
+        }
+    }
+
+    private Comment updateStatus(SRunningBuild build,
+                                 VcsApi vcsApi,
+                                 PullRequest pullRequest,
+                                 PullRequestBuild pullRequestBuild,
+                                 CommitStatus commitStatus) throws IOException {
+        try {
+            String statusMessage = getStatusMessage(build, commitStatus);
+            vcsApi.updateStatus(getSourceCommitHash(pullRequest), statusMessage, commitStatus, getTargetUrl(build));
+
+            return null;
+        } catch (UnsupportedOperationException e) {
+            return postOrUpdateComment(build, vcsApi, pullRequest, pullRequestBuild);
+        }
+    }
+
+    private String getStatusMessage(SRunningBuild build,
+                                    CommitStatus commitStatus) {
+        switch (commitStatus) {
+            case ERROR:
+            case FAILURE:
+            case SUCCESS:
+                String buildDescription = Strings.nullToEmpty(build.getStatusDescriptor().getText());
+
+                if (!buildDescription.isEmpty()) {
+                    buildDescription = " : " + buildDescription;
+                }
+
+                return build.getFullName() + buildDescription;
+            case PENDING:
+                return constants.getBuildStarted() + build.getFullName();
+            default:
+                return "";
+        }
+    }
+
     private Comment postOrUpdateComment(SRunningBuild build,
-                                        VcsApi bitbucketApi,
+                                        VcsApi vcsApi,
                                         PullRequest pullRequest,
                                         PullRequestBuild pullRequestBuild) throws IOException {
         Comment comment = pullRequestBuild == null ? null : pullRequestBuild.getLastComment();
 
         if (comment != null) {
-            deleteOldComment(bitbucketApi, pullRequest.getId(), comment);
+            deleteOldComment(vcsApi, pullRequest.getId(), comment);
         }
 
-        comment = bitbucketApi.postComment(pullRequest.getId(), getComment(build));
+        comment = vcsApi.postComment(pullRequest.getId(), getComment(build));
 
         return comment;
     }
@@ -141,7 +197,11 @@ public class PullRequestCommentHandler {
     }
 
     private String getComment(SRunningBuild build) {
-        return getComment(build.getBuildStatus()) + "(" + webLinks.getViewResultsUrl(build) + ")";
+        return getComment(build.getBuildStatus()) + "(" + getTargetUrl(build) + ")";
+    }
+
+    private String getTargetUrl(SRunningBuild build) {
+        return webLinks.getViewResultsUrl(build);
     }
 
     private String getComment(Status status) {
@@ -150,5 +210,12 @@ public class PullRequestCommentHandler {
         } else {
             return constants.getBuildFailure();
         }
+    }
+
+    private String getSourceCommitHash(PullRequest pullRequest) {
+        PullRequestTarget source = pullRequest.getSource();
+        Commit sourceCommit = source.getCommit();
+
+        return sourceCommit.getHash();
     }
 }

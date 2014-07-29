@@ -16,20 +16,8 @@
 
 package com.arcbees.pullrequest;
 
-public class Constants {
-    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
-    private static final String BUILD_FAILURE = "BUILD FAILURE ";
-    private static final String BUILD_STARTED = "TeamCity Build Started : ";
-
-    public String getBuildSuccess() {
-        return BUILD_SUCCESS;
-    }
-
-    public String getBuildFailure() {
-        return BUILD_FAILURE;
-    }
-
-    public String getBuildStarted() {
-        return BUILD_STARTED;
-    }
+public enum BuildStatus {
+    STARTING,
+    INTERRUPTED,
+    FINISHED
 }

@@ -14,22 +14,19 @@
  * the License.
  */
 
-package com.arcbees.pullrequest;
+package com.arcbees.vcs.util;
 
-public class Constants {
-    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
-    private static final String BUILD_FAILURE = "BUILD FAILURE ";
-    private static final String BUILD_STARTED = "TeamCity Build Started : ";
+import java.lang.reflect.Type;
 
-    public String getBuildSuccess() {
-        return BUILD_SUCCESS;
-    }
+import com.arcbees.vcs.model.CommitStatus;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
-    public String getBuildFailure() {
-        return BUILD_FAILURE;
-    }
-
-    public String getBuildStarted() {
-        return BUILD_STARTED;
+public class CommitStatusTypeAdapter implements JsonSerializer<CommitStatus> {
+    @Override
+    public JsonElement serialize(CommitStatus src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(src.getStatusCode());
     }
 }

@@ -36,7 +36,7 @@
         <props:selectProperty name="${keys.vcsType}" id="${keys.vcsType}" onchange="BS.VcsSettings.onSelect(this)">
             <props:option value="bitbucket">Bitbucket</props:option>
             <props:option value="stash">Stash</props:option>
-            <props:option value="github">Github</props:option>
+            <props:option value="github">GitHub</props:option>
         </props:selectProperty>
     </td>
 </tr>

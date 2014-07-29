@@ -14,22 +14,21 @@
  * the License.
  */
 
-package com.arcbees.pullrequest;
+package com.arcbees.vcs.model;
 
-public class Constants {
-    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
-    private static final String BUILD_FAILURE = "BUILD FAILURE ";
-    private static final String BUILD_STARTED = "TeamCity Build Started : ";
+public enum CommitStatus {
+    ERROR,
+    FAILURE,
+    PENDING,
+    SUCCESS;
 
-    public String getBuildSuccess() {
-        return BUILD_SUCCESS;
+    private final String statusCode;
+
+    CommitStatus() {
+        this.statusCode = name().toLowerCase();
     }
 
-    public String getBuildFailure() {
-        return BUILD_FAILURE;
-    }
-
-    public String getBuildStarted() {
-        return BUILD_STARTED;
+    public String getStatusCode() {
+        return statusCode;
     }
 }

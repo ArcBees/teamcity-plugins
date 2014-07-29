@@ -14,22 +14,15 @@
  * the License.
  */
 
-package com.arcbees.pullrequest;
+package com.arcbees.vcs.github;
 
-public class Constants {
-    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
-    private static final String BUILD_FAILURE = "BUILD FAILURE ";
-    private static final String BUILD_STARTED = "TeamCity Build Started : ";
+import com.arcbees.vcs.VcsType;
 
-    public String getBuildSuccess() {
-        return BUILD_SUCCESS;
-    }
+public class GitHubVcsType implements VcsType {
+    private static final String GITHUB = "github";
 
-    public String getBuildFailure() {
-        return BUILD_FAILURE;
-    }
-
-    public String getBuildStarted() {
-        return BUILD_STARTED;
+    @Override
+    public String getName() {
+        return GITHUB;
     }
 }

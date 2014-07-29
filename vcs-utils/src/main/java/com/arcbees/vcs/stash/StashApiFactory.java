@@ -23,12 +23,12 @@ import com.arcbees.vcs.VcsPropertiesHelper;
 import com.arcbees.vcs.VcsType;
 import com.arcbees.vcs.util.HttpClientWrapper;
 
-public class StashApiFactoryImpl implements VcsApiFactory {
+public class StashApiFactory implements VcsApiFactory {
     private final HttpClientWrapper httpClient;
     private final StashVcsType stashVcsType;
 
-    public StashApiFactoryImpl(HttpClientWrapper httpClient,
-                               StashVcsType stashVcsType) {
+    public StashApiFactory(HttpClientWrapper httpClient,
+                           StashVcsType stashVcsType) {
         this.httpClient = httpClient;
         this.stashVcsType = stashVcsType;
     }
@@ -40,7 +40,7 @@ public class StashApiFactoryImpl implements VcsApiFactory {
 
     @Override
     public VcsApi create(VcsPropertiesHelper vcsPropertiesHelper) {
-        return new StashApiImpl(httpClient, new StashApiPaths(vcsPropertiesHelper.getServerUrl()),
+        return new StashApi(httpClient, new StashApiPaths(vcsPropertiesHelper.getServerUrl()),
                 vcsPropertiesHelper.getUserName(),
                 vcsPropertiesHelper.getPassword(),
                 vcsPropertiesHelper.getRepositoryOwner(),

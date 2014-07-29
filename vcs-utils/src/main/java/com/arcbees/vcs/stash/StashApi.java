@@ -18,11 +18,9 @@
 package com.arcbees.vcs.stash;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Date;
 
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -30,10 +28,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 
 import com.arcbees.vcs.AbstractVcsApi;
 import com.arcbees.vcs.model.Comment;
+import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.stash.model.StashComment;
@@ -45,7 +43,7 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class StashApiImpl extends AbstractVcsApi {
+public class StashApi extends AbstractVcsApi {
     private final HttpClientWrapper httpClient;
     private final Gson gson;
     private final StashApiPaths apiPaths;
@@ -53,12 +51,12 @@ public class StashApiImpl extends AbstractVcsApi {
     private final String repositoryName;
     private final UsernamePasswordCredentials credentials;
 
-    public StashApiImpl(HttpClientWrapper httpClient,
-                        StashApiPaths apiPaths,
-                        String userName,
-                        String password,
-                        String repositoryOwner,
-                        String repositoryName) {
+    public StashApi(HttpClientWrapper httpClient,
+                    StashApiPaths apiPaths,
+                    String userName,
+                    String password,
+                    String repositoryOwner,
+                    String repositoryName) {
         this.httpClient = httpClient;
         this.apiPaths = apiPaths;
         this.repositoryOwner = repositoryOwner;
@@ -106,20 +104,7 @@ public class StashApiImpl extends AbstractVcsApi {
 
             HttpDelete request = new HttpDelete(requestUrl);
 
-            includeAuthentication(request, credentials);
-            setDefaultHeaders(request);
-
-            HttpResponse response = null;
-            try {
-                response = httpClient.execute(request);
-                if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-                    throw new IOException("Failed to complete request to Stash. Status: " + response.getStatusLine());
-                }
-            } finally {
-                if (response != null) {
-                    EntityUtils.consumeQuietly(response.getEntity());
-                }
-            }
+            executeRequest(httpClient, request, credentials);
         }
     }
 
@@ -133,6 +118,13 @@ public class StashApiImpl extends AbstractVcsApi {
         request.setEntity(new ByteArrayEntity(gson.toJson(new StashComment(comment)).getBytes(Charsets.UTF_8)));
 
         return processResponse(httpClient, request, credentials, gson, StashComment.class);
+    }
+
+    @Override
+    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+            throws IOException, UnsupportedOperationException {
+        // TODO : Implement
+        throw new UnsupportedOperationException();
     }
 
     private StashComment getComment(Integer pullRequestId, Long commentId) throws IOException {

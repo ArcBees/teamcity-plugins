@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-autowire="constructor">
     <bean class="com.arcbees.pullrequest.PullRequestsBuildListener"/>
-    <bean class="com.arcbees.pullrequest.PullRequestCommentHandler"/>
+    <bean class="com.arcbees.pullrequest.PullRequestStatusHandler"/>
     <bean class="com.arcbees.pullrequest.PullRequestsTrigger"/>
     <bean class="com.arcbees.pullrequest.PullRequestsFeature"/>
     <bean class="com.arcbees.pullrequest.Constants"/>

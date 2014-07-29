@@ -14,22 +14,23 @@
  * the License.
  */
 
-package com.arcbees.pullrequest;
+package com.arcbees.vcs.github.model;
 
-public class Constants {
-    private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
-    private static final String BUILD_FAILURE = "BUILD FAILURE ";
-    private static final String BUILD_STARTED = "TeamCity Build Started : ";
+import java.util.List;
 
-    public String getBuildSuccess() {
-        return BUILD_SUCCESS;
+import com.arcbees.vcs.model.PullRequest;
+import com.arcbees.vcs.model.PullRequests;
+
+public class GitHubPullRequests implements PullRequests<GitHubPullRequest> {
+    private List<GitHubPullRequest> pullRequests;
+
+    @Override
+    public List<? extends PullRequest> getPullRequests() {
+        return pullRequests;
     }
 
-    public String getBuildFailure() {
-        return BUILD_FAILURE;
-    }
-
-    public String getBuildStarted() {
-        return BUILD_STARTED;
+    @Override
+    public void setPullRequests(List<GitHubPullRequest> pullRequests) {
+        this.pullRequests = pullRequests;
     }
 }
