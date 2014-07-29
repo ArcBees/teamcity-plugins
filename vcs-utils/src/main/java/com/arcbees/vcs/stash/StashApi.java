@@ -43,7 +43,7 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class StashApiImpl extends AbstractVcsApi {
+public class StashApi extends AbstractVcsApi {
     private final HttpClientWrapper httpClient;
     private final Gson gson;
     private final StashApiPaths apiPaths;
@@ -51,12 +51,12 @@ public class StashApiImpl extends AbstractVcsApi {
     private final String repositoryName;
     private final UsernamePasswordCredentials credentials;
 
-    public StashApiImpl(HttpClientWrapper httpClient,
-                        StashApiPaths apiPaths,
-                        String userName,
-                        String password,
-                        String repositoryOwner,
-                        String repositoryName) {
+    public StashApi(HttpClientWrapper httpClient,
+                    StashApiPaths apiPaths,
+                    String userName,
+                    String password,
+                    String repositoryOwner,
+                    String repositoryName) {
         this.httpClient = httpClient;
         this.apiPaths = apiPaths;
         this.repositoryOwner = repositoryOwner;

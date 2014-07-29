@@ -17,9 +17,11 @@
 package com.arcbees.vcs.github.model;
 
 import com.arcbees.vcs.model.CommitStatus;
+import com.google.gson.annotations.SerializedName;
 
 public class GitHubCommitStatus {
     private CommitStatus state;
+    @SerializedName("target_url")
     private String targetUrl;
     private String description;
     private String context;

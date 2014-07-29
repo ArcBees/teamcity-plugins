@@ -22,12 +22,12 @@ import com.arcbees.vcs.VcsPropertiesHelper;
 import com.arcbees.vcs.VcsType;
 import com.arcbees.vcs.util.HttpClientWrapper;
 
-public class BitbucketApiFactoryImpl implements VcsApiFactory {
+public class BitbucketApiFactory implements VcsApiFactory {
     private final HttpClientWrapper httpClient;
     private final BitbucketVcsType bitbucketVcsType;
 
-    public BitbucketApiFactoryImpl(HttpClientWrapper httpClient,
-                                   BitbucketVcsType bitbucketVcsType) {
+    public BitbucketApiFactory(HttpClientWrapper httpClient,
+                               BitbucketVcsType bitbucketVcsType) {
         this.httpClient = httpClient;
         this.bitbucketVcsType = bitbucketVcsType;
     }
@@ -39,7 +39,7 @@ public class BitbucketApiFactoryImpl implements VcsApiFactory {
 
     @Override
     public VcsApi create(VcsPropertiesHelper vcsPropertiesHelper) {
-        return new BitbucketApiImpl(httpClient, new BitbucketApiPaths(vcsPropertiesHelper.getServerUrl()),
+        return new BitbucketApi(httpClient, new BitbucketApiPaths(vcsPropertiesHelper.getServerUrl()),
                 vcsPropertiesHelper.getUserName(),
                 vcsPropertiesHelper.getPassword(),
                 vcsPropertiesHelper.getRepositoryOwner(),

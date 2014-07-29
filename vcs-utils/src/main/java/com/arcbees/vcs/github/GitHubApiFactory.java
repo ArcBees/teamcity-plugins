@@ -22,12 +22,12 @@ import com.arcbees.vcs.VcsPropertiesHelper;
 import com.arcbees.vcs.VcsType;
 import com.arcbees.vcs.util.HttpClientWrapper;
 
-public class GitHubApiFactoryImpl implements VcsApiFactory {
+public class GitHubApiFactory implements VcsApiFactory {
     private final HttpClientWrapper httpClient;
     private final GitHubVcsType gitHubVcsType;
 
-    public GitHubApiFactoryImpl(HttpClientWrapper httpClient,
-                                GitHubVcsType gitHubVcsType) {
+    public GitHubApiFactory(HttpClientWrapper httpClient,
+                            GitHubVcsType gitHubVcsType) {
         this.httpClient = httpClient;
         this.gitHubVcsType = gitHubVcsType;
     }
@@ -39,7 +39,7 @@ public class GitHubApiFactoryImpl implements VcsApiFactory {
 
     @Override
     public VcsApi create(VcsPropertiesHelper vcsPropertiesHelper) {
-        return new GitHubApiImpl(httpClient, new GitHubApiPaths(vcsPropertiesHelper.getServerUrl()),
+        return new GitHubApi(httpClient, new GitHubApiPaths(vcsPropertiesHelper.getServerUrl()),
                 vcsPropertiesHelper.getUserName(),
                 vcsPropertiesHelper.getPassword(),
                 vcsPropertiesHelper.getRepositoryOwner(),

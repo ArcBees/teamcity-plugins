@@ -14,53 +14,66 @@
  * the License.
  */
 
-package com.arcbees.vcs.bitbucket;
+package com.arcbees.vcs.github;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.arcbees.vcs.AbstractVcsApi;
-import com.arcbees.vcs.bitbucket.model.BitbucketComment;
-import com.arcbees.vcs.bitbucket.model.BitbucketPullRequests;
+import com.arcbees.vcs.github.model.GitHubComment;
+import com.arcbees.vcs.github.model.GitHubCommitStatus;
+import com.arcbees.vcs.github.model.GitHubPullRequests;
+import com.arcbees.vcs.github.util.GitHubPullRequestsTypeAdapter;
 import com.arcbees.vcs.model.Comment;
 import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequests;
+import com.arcbees.vcs.util.CommitStatusTypeAdapter;
 import com.arcbees.vcs.util.GsonDateTypeAdapter;
 import com.arcbees.vcs.util.HttpClientWrapper;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class BitbucketApiImpl extends AbstractVcsApi {
+public class GitHubApi extends AbstractVcsApi {
     private final HttpClientWrapper httpClient;
     private final Gson gson;
-    private final BitbucketApiPaths apiPaths;
+    private final GitHubApiPaths apiPaths;
     private final String repositoryOwner;
     private final String repositoryName;
     private final UsernamePasswordCredentials credentials;
 
-    public BitbucketApiImpl(HttpClientWrapper httpClient,
-                            BitbucketApiPaths apiPaths,
-                            String userName,
-                            String password,
-                            String repositoryOwner,
-                            String repositoryName) {
+    public GitHubApi(HttpClientWrapper httpClient,
+                     GitHubApiPaths apiPaths,
+                     String userName,
+                     String password,
+                     String repositoryOwner,
+                     String repositoryName) {
         this.httpClient = httpClient;
         this.apiPaths = apiPaths;
         this.repositoryOwner = repositoryOwner;
         this.repositoryName = repositoryName;
         this.credentials = new UsernamePasswordCredentials(userName, password);
-        this.gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateTypeAdapter()).create();
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new GsonDateTypeAdapter())
+                .registerTypeAdapter(GitHubPullRequests.class, new GitHubPullRequestsTypeAdapter())
+                .registerTypeAdapter(CommitStatus.class, new CommitStatusTypeAdapter())
+                .create();
     }
 
     @Override
@@ -69,7 +82,7 @@ public class BitbucketApiImpl extends AbstractVcsApi {
 
         HttpGet request = new HttpGet(requestUrl);
 
-        return processResponse(httpClient, request, credentials, gson, BitbucketPullRequests.class);
+        return processResponse(httpClient, request, credentials, gson, GitHubPullRequests.class);
     }
 
     @Override
@@ -78,7 +91,7 @@ public class BitbucketApiImpl extends AbstractVcsApi {
 
         HttpGet request = new HttpGet(requestUrl);
 
-        return processResponse(httpClient, request, credentials, gson, BitbucketPullRequests.class);
+        return processResponse(httpClient, request, credentials, gson, GitHubPullRequests.class);
     }
 
     @Override
@@ -113,12 +126,20 @@ public class BitbucketApiImpl extends AbstractVcsApi {
 
         request.setEntity(new UrlEncodedFormEntity(postParameters));
 
-        return processResponse(httpClient, request, credentials, gson, BitbucketComment.class);
+        return processResponse(httpClient, request, credentials, gson, GitHubComment.class);
     }
 
     @Override
     public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
-            throws IOException, UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+            throws IOException {
+        String requestUrl = apiPaths.updateStatus(repositoryOwner, repositoryName, commitHash);
+
+        HttpPost request = new HttpPost(requestUrl);
+        request.setHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
+
+        String entityAsJson = gson.toJson(new GitHubCommitStatus(status, message, targetUrl));
+        request.setEntity(new StringEntity(entityAsJson));
+
+        executeRequest(httpClient, request, credentials);
     }
 }

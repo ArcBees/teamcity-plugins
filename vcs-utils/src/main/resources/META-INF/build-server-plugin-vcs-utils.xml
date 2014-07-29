@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-autowire="constructor">
-    <bean class="com.arcbees.vcs.bitbucket.BitbucketApiFactoryImpl"/>
+    <bean class="com.arcbees.vcs.bitbucket.BitbucketApiFactory"/>
     <bean class="com.arcbees.vcs.bitbucket.BitbucketVcsType"/>
 
-    <bean class="com.arcbees.vcs.stash.StashApiFactoryImpl"/>
+    <bean class="com.arcbees.vcs.stash.StashApiFactory"/>
     <bean class="com.arcbees.vcs.stash.StashVcsType"/>
 
-    <bean class="com.arcbees.vcs.github.GitHubApiFactoryImpl"/>
+    <bean class="com.arcbees.vcs.github.GitHubApiFactory"/>
     <bean class="com.arcbees.vcs.github.GitHubVcsType"/>
 
     <bean class="com.arcbees.vcs.util.HttpClientWrapperImpl" destroy-method="shutdown"/>
