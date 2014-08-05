@@ -107,7 +107,11 @@ public class PullRequestStatusHandler {
 
             return null;
         } catch (UnsupportedOperationException e) {
-            return postOrUpdateComment(build, vcsApi, pullRequest, pullRequestBuild);
+            if (!CommitStatus.PENDING.equals(commitStatus)) {
+                return postOrUpdateComment(build, vcsApi, pullRequest, pullRequestBuild);
+            } else {
+                return null;
+            }
         }
     }
 
