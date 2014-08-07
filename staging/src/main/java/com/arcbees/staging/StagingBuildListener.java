@@ -31,6 +31,7 @@ import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.serverSide.executors.ExecutorServices;
 import jetbrains.buildServer.util.EventDispatcher;
+import jetbrains.buildServer.util.ExceptionUtil;
 
 public class StagingBuildListener {
     private static final Logger LOGGER = Logger.getLogger(StagingBuildListener.class.getName());
@@ -73,7 +74,7 @@ public class StagingBuildListener {
     }
 
     private void handleDeploy(final SRunningBuild build, final BuildTriggerDescriptor trigger) {
-        executorService.execute(new Runnable() {
+        executorService.submit(ExceptionUtil.catchAll("Tomcat7 Deploy", new Runnable() {
             @Override
             public void run() {
                 try {
@@ -82,6 +83,6 @@ public class StagingBuildListener {
                     LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
                 }
             }
-        });
+        }));
     }
 }

@@ -31,6 +31,7 @@ import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.serverSide.executors.ExecutorServices;
 import jetbrains.buildServer.util.EventDispatcher;
+import jetbrains.buildServer.util.ExceptionUtil;
 
 public class PullRequestsBuildListener {
     private static final Logger LOGGER = Logger.getLogger(PullRequestsBuildListener.class.getName());
@@ -79,7 +80,7 @@ public class PullRequestsBuildListener {
     private void handleBuildStatus(final SRunningBuild build,
                                    final BuildStatus buildStatus,
                                    final BuildTriggerDescriptor trigger) {
-        executorService.execute(new Runnable() {
+        executorService.submit(ExceptionUtil.catchAll("PullRequest Handler", new Runnable() {
             @Override
             public void run() {
                 try {
@@ -88,7 +89,7 @@ public class PullRequestsBuildListener {
                     LOGGER.log(Level.SEVERE, "Error updating pull request status.", e);
                 }
             }
-        });
+        }));
     }
 
     private BuildTriggerDescriptor getTrigger(SRunningBuild build) {
