@@ -17,6 +17,7 @@
 package com.arcbees.pullrequest;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,57 +29,67 @@ import jetbrains.buildServer.serverSide.BuildServerAdapter;
 import jetbrains.buildServer.serverSide.BuildServerListener;
 import jetbrains.buildServer.serverSide.SBuildType;
 import jetbrains.buildServer.serverSide.SRunningBuild;
+import jetbrains.buildServer.serverSide.executors.ExecutorServices;
 import jetbrains.buildServer.util.EventDispatcher;
+import jetbrains.buildServer.util.ExceptionUtil;
 
 public class PullRequestsBuildListener {
     private static final Logger LOGGER = Logger.getLogger(PullRequestsBuildListener.class.getName());
 
     private final PullRequestStatusHandler statusHandler;
+    private final ExecutorService executorService;
 
     public PullRequestsBuildListener(EventDispatcher<BuildServerListener> listener,
+                                     ExecutorServices executorServices,
                                      PullRequestStatusHandler statusHandler) {
         this.statusHandler = statusHandler;
+        executorService = executorServices.getLowPriorityExecutorService();
+
         listener.addListener(new BuildServerAdapter() {
             @Override
             public void buildStarted(@NotNull SRunningBuild build) {
-                try {
-                    onBuildStatusChanged(build, BuildStatus.STARTING);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
-                }
+                onBuildStatusChanged(build, BuildStatus.STARTING);
             }
 
             @Override
             public void buildInterrupted(@NotNull SRunningBuild build) {
-                try {
-                    onBuildStatusChanged(build, BuildStatus.INTERRUPTED);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
-                }
+                onBuildStatusChanged(build, BuildStatus.INTERRUPTED);
             }
 
             @Override
             public void buildFinished(@NotNull SRunningBuild build) {
-                try {
-                    onBuildStatusChanged(build, BuildStatus.FINISHED);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error getting pull request infos", e);
-                }
+                onBuildStatusChanged(build, BuildStatus.FINISHED);
             }
         });
     }
 
-    private void onBuildStatusChanged(SRunningBuild build, BuildStatus buildStatus) throws IOException {
-        BuildTriggerDescriptor trigger = getTrigger(build);
+    private void onBuildStatusChanged(final SRunningBuild build,
+                                      final BuildStatus buildStatus) {
+        final BuildTriggerDescriptor trigger = getTrigger(build);
 
         if (trigger != null) {
             Branch branch = build.getBranch();
             if (branch != null) {
-                statusHandler.handle(build, trigger, buildStatus);
+                handleBuildStatus(build, buildStatus, trigger);
             } else {
                 LOGGER.severe("Unknown branch name");
             }
         }
+    }
+
+    private void handleBuildStatus(final SRunningBuild build,
+                                   final BuildStatus buildStatus,
+                                   final BuildTriggerDescriptor trigger) {
+        executorService.submit(ExceptionUtil.catchAll("PullRequest Handler", new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    statusHandler.handle(build, trigger, buildStatus);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error updating pull request status.", e);
+                }
+            }
+        }));
     }
 
     private BuildTriggerDescriptor getTrigger(SRunningBuild build) {
