@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.arcbees.vcs.VcsApi;
 import com.arcbees.vcs.VcsApiFactories;
@@ -43,6 +45,7 @@ import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.serverSide.WebLinks;
 
 public class PullRequestStatusHandler {
+    private static final Logger LOGGER = Logger.getLogger(PullRequestStatusHandler.class.getName());
     private final VcsApiFactories vcsApiFactories;
     private final VcsConstants vcsConstants;
     private final Constants constants;
@@ -60,6 +63,10 @@ public class PullRequestStatusHandler {
 
     public void handle(SRunningBuild build, BuildTriggerDescriptor trigger, BuildStatus buildStatus)
             throws IOException {
+        LOGGER.entering(PullRequestStatusHandler.class.getName(), "handle");
+        LOGGER.log(Level.INFO, "Handling build status - Build Status: {0}, Branch: {1}, isSuccessful: {2}",
+                new Object[] {buildStatus,build.getBranch().getName(), build.getBuildStatus().isSuccessful()});
+
         Branch branch = build.getBranch();
         if (branch != null) {
             SBuildType buildType = build.getBuildType();
@@ -75,6 +82,8 @@ public class PullRequestStatusHandler {
 
             CommitStatus commitStatus = getCommitStatus(build.getBuildStatus(), buildStatus);
             Comment comment = updateStatus(build, vcsApi, pullRequest, pullRequestBuild, commitStatus);
+
+            UpdateApproval(vcsApi, pullRequest, commitStatus);
 
             pullRequestBuild = new PullRequestBuild(pullRequest, build.getBuildStatus(), comment);
             dataStorage.putValue(getPullRequestKey(vcsPropertiesHelper, pullRequest), pullRequestBuild);
@@ -93,6 +102,29 @@ public class PullRequestStatusHandler {
                 }
             default:
                 return CommitStatus.ERROR;
+        }
+    }
+    private Comment UpdateApproval(VcsApi vcsApi,
+                                 PullRequest pullRequest,
+                                 CommitStatus commitStatus) throws IOException {
+        try {
+            if (CommitStatus.PENDING.equals(commitStatus))
+            {
+                LOGGER.log(Level.INFO, "Delete pull request {0} approval", new Object[] {pullRequest.getId()});
+                vcsApi.deletePullRequestApproval(pullRequest.getId());
+            }
+
+            if (CommitStatus.SUCCESS.equals(commitStatus))
+            {
+                LOGGER.log(Level.INFO, "Approving pull request {0}", new Object[] {pullRequest.getId()});
+                vcsApi.approvePullRequest(pullRequest.getId());
+            }
+
+            return null;
+        } catch (UnsupportedOperationException e) {
+            LOGGER.log(Level.SEVERE, "Error! cannot update approval on pull request {0}, Error: {1}", new Object[] {pullRequest.getId() , e.toString()});
+
+            return null;
         }
     }
 

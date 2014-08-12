@@ -51,4 +51,7 @@ public class VcsPropertiesHelper {
     public String getServerUrl() {
         return properties.get(vcsConstants.getServerUrl());
     }
+
+    public boolean getApproveOnSuccessKey() { return Boolean.parseBoolean(properties.get(vcsConstants.getApproveOnSuccessKey())); }
+
 }

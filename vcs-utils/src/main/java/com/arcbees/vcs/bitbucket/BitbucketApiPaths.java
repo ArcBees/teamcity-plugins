@@ -22,6 +22,7 @@ public class BitbucketApiPaths {
     private static final String REPOSITORIES = "repositories/";
     private static final String PULLREQUESTS = "/pullrequests/";
     private static final String COMMENTS = "/comments";
+    private static final String APPROVE = "/approve";
     private static final String SLASH = "/";
     private static final String STATE_MERGED = "?state=MERGED";
 
@@ -71,4 +72,9 @@ public class BitbucketApiPaths {
     private String pathToPullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
         return REPOSITORIES + repositoryOwner + SLASH + repositoryName + PULLREQUESTS + pullRequestId;
     }
+
+    public String approvePullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
+        return baseUrl + API_2 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + APPROVE;
+    }
+
 }

@@ -84,3 +84,14 @@
         </td>
     </tr>
 </l:settingsGroup>
+<l:settingsGroup title="Behaviour">
+    <tr>
+        <th>Approve on success:</th>
+        <td>
+            <props:checkboxProperty name="${keys.approveOnSuccessKey}" />
+            <span class="error" id="error_${keys.approveOnSuccessKey}"></span>
+            <span class="smallNote">User should approve request on build success</span>
+        </td>
+    </tr>
+</l:settingsGroup>
+

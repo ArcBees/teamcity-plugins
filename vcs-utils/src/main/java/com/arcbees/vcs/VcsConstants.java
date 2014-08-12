@@ -26,6 +26,7 @@ public class VcsConstants {
     private static final String REPOSITORY_OWNER = "vcs_owner";
     private static final String PULLREQUEST_KEY = "vcs_pullrequest_";
     private static final String VCS_TYPE = "vcs_type";
+    private static final String APPROVE_ON_SUCCESS_KEY = "vcs_approve";
 
     public String getUserNameKey() {
         return USERNAME_KEY;
@@ -54,4 +55,7 @@ public class VcsConstants {
     public String getVcsType() {
         return VCS_TYPE;
     }
+
+    public String getApproveOnSuccessKey() { return APPROVE_ON_SUCCESS_KEY; }
+
 }

@@ -43,6 +43,7 @@ public class BitbucketApiFactory implements VcsApiFactory {
                 vcsPropertiesHelper.getUserName(),
                 vcsPropertiesHelper.getPassword(),
                 vcsPropertiesHelper.getRepositoryOwner(),
-                vcsPropertiesHelper.getRepositoryName());
+                vcsPropertiesHelper.getRepositoryName(),
+                vcsPropertiesHelper.getApproveOnSuccessKey());
     }
 }
