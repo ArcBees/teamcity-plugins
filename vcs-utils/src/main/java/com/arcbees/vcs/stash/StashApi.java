@@ -129,12 +129,20 @@ public class StashApi extends AbstractVcsApi {
 
     @Override
     public void approvePullRequest(Integer pullRequestId) throws IOException, UnsupportedOperationException {
+        String requestUrl = apiPaths.approvePullRequest(repositoryOwner, repositoryName, pullRequestId);
 
+        HttpPost request = new HttpPost(requestUrl);
+
+        executeRequest(httpClient, request, credentials);
     }
 
     @Override
     public void deletePullRequestApproval(Integer pullRequestId) throws IOException, UnsupportedOperationException {
+        String requestUrl = apiPaths.approvePullRequest(repositoryOwner, repositoryName, pullRequestId);
 
+        HttpDelete request = new HttpDelete(requestUrl);
+
+        executeRequest(httpClient, request, credentials);
     }
 
     private StashComment getComment(Integer pullRequestId, Long commentId) throws IOException {
