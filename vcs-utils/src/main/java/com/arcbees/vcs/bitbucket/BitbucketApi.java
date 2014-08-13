@@ -45,28 +45,26 @@ import com.google.gson.GsonBuilder;
 
 public class BitbucketApi extends AbstractVcsApi {
     private static final Logger LOGGER = Logger.getLogger(BitbucketApi.class.getName());
+
     private final HttpClientWrapper httpClient;
     private final Gson gson;
     private final BitbucketApiPaths apiPaths;
     private final String repositoryOwner;
     private final String repositoryName;
     private final UsernamePasswordCredentials credentials;
-    private final boolean approveOnSuccess;
 
     public BitbucketApi(HttpClientWrapper httpClient,
                         BitbucketApiPaths apiPaths,
                         String userName,
                         String password,
                         String repositoryOwner,
-                        String repositoryName,
-                        boolean approveOnSuccess) {
+                        String repositoryName) {
         this.httpClient = httpClient;
         this.apiPaths = apiPaths;
         this.repositoryOwner = repositoryOwner;
         this.repositoryName = repositoryName;
         this.credentials = new UsernamePasswordCredentials(userName, password);
         this.gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateTypeAdapter()).create();
-        this.approveOnSuccess = approveOnSuccess;
     }
 
     @Override
@@ -130,11 +128,6 @@ public class BitbucketApi extends AbstractVcsApi {
 
     @Override
     public void approvePullRequest(Integer pullRequestId) throws IOException, UnsupportedOperationException {
-        if (!approveOnSuccess){
-            LOGGER.log(Level.INFO, "Skipping approve pull request.");
-            return;
-        }
-
         String requestUrl = apiPaths.approvePullRequest(repositoryOwner, repositoryName, pullRequestId);
 
         LOGGER.log(Level.INFO, "Approve pull request url - {0}.", new Object[] {requestUrl});

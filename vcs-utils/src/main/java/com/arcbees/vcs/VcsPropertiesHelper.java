@@ -19,7 +19,7 @@ package com.arcbees.vcs;
 import java.util.Map;
 
 public class VcsPropertiesHelper {
-    private final Map<String, String> properties;
+    protected final Map<String, String> properties;
     private final VcsConstants vcsConstants;
 
     public VcsPropertiesHelper(Map<String, String> properties,
@@ -51,7 +51,5 @@ public class VcsPropertiesHelper {
     public String getServerUrl() {
         return properties.get(vcsConstants.getServerUrl());
     }
-
-    public boolean getApproveOnSuccessKey() { return Boolean.parseBoolean(properties.get(vcsConstants.getApproveOnSuccessKey())); }
 
 }

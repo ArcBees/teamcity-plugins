@@ -2,6 +2,7 @@
 <%@ include file="/include-internal.jsp" %>
 
 <jsp:useBean id="propertiesBean" type="jetbrains.buildServer.controllers.BasePropertiesBean" scope="request"/>
+<jsp:useBean id="pullKeys" class="com.arcbees.pullrequest.Constants"/>
 
 <script>
     BS.EditTriggersDialog.serializeParameters = function () {
@@ -28,3 +29,13 @@
 </script>
 
 <%@ include file="vcsSettings.jsp" %>
+<l:settingsGroup title="Behaviour">
+    <tr>
+        <th>Approve on success:</th>
+        <td>
+            <props:checkboxProperty name="${pullKeys.approveOnSuccessKey}" />
+            <span class="error" id="error_${pullKeys.approveOnSuccessKey}"></span>
+            <span class="smallNote">User should approve request on build success</span>
+        </td>
+    </tr>
+</l:settingsGroup>
