@@ -54,5 +54,4 @@ public class VcsConstants {
     public String getVcsType() {
         return VCS_TYPE;
     }
-
 }
