@@ -27,11 +27,11 @@ public class PullRequestPropertiesHelper extends VcsPropertiesHelper {
                                        VcsConstants vcsConstants,
                                        Constants pullRequestConstants) {
         super(properties, vcsConstants);
+
         this.pullRequestConstants = pullRequestConstants;
     }
 
     public boolean getApproveOnSuccessKey() {
         return Boolean.parseBoolean(properties.get(pullRequestConstants.getApproveOnSuccessKey()));
     }
-
 }

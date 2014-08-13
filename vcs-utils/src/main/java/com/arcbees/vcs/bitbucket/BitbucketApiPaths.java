@@ -76,5 +76,4 @@ public class BitbucketApiPaths {
     public String approvePullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
         return baseUrl + API_2 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + APPROVE;
     }
-
 }

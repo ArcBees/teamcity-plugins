@@ -46,6 +46,7 @@ import jetbrains.buildServer.serverSide.WebLinks;
 
 public class PullRequestStatusHandler {
     private static final Logger LOGGER = Logger.getLogger(PullRequestStatusHandler.class.getName());
+
     private final VcsApiFactories vcsApiFactories;
     private final VcsConstants vcsConstants;
     private final Constants constants;
@@ -82,8 +83,9 @@ public class PullRequestStatusHandler {
             CommitStatus commitStatus = getCommitStatus(build.getBuildStatus(), buildStatus);
             Comment comment = updateStatus(build, vcsApi, pullRequest, pullRequestBuild, commitStatus);
 
-            if (pullRequestPropertiesHelper.getApproveOnSuccessKey())
+            if (pullRequestPropertiesHelper.getApproveOnSuccessKey()) {
                 updateApproval(vcsApi, pullRequest, commitStatus);
+            }
 
             pullRequestBuild = new PullRequestBuild(pullRequest, build.getBuildStatus(), comment);
             dataStorage.putValue(getPullRequestKey(pullRequestPropertiesHelper, pullRequest), pullRequestBuild);

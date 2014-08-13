@@ -143,5 +143,4 @@ public class BitbucketApi extends AbstractVcsApi {
 
         executeRequest(httpClient, request, credentials);
     }
-
 }

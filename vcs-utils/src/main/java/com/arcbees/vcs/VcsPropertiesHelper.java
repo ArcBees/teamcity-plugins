@@ -51,5 +51,4 @@ public class VcsPropertiesHelper {
     public String getServerUrl() {
         return properties.get(vcsConstants.getServerUrl());
     }
-
 }
