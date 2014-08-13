@@ -63,7 +63,6 @@ public class PullRequestStatusHandler {
 
     public void handle(SRunningBuild build, BuildTriggerDescriptor trigger, BuildStatus buildStatus)
             throws IOException {
-        LOGGER.entering(PullRequestStatusHandler.class.getName(), "handle");
         LOGGER.log(Level.INFO, "Handling build status - Build Status: {0}, Branch: {1}, isSuccessful: {2}",
                 new Object[] {buildStatus,build.getBranch().getName(), build.getBuildStatus().isSuccessful()});
 
@@ -109,10 +108,8 @@ public class PullRequestStatusHandler {
     private void updateApproval(VcsApi vcsApi, PullRequest pullRequest, CommitStatus commitStatus) throws IOException {
         try {
             if (CommitStatus.SUCCESS.equals(commitStatus)) {
-                LOGGER.log(Level.INFO, "Approving pull request {0}", new Object[] {pullRequest.getId()});
                 vcsApi.approvePullRequest(pullRequest.getId());
             } else {
-                LOGGER.log(Level.INFO, "Delete pull request {0} approval", new Object[] {pullRequest.getId()});
                 vcsApi.deletePullRequestApproval(pullRequest.getId());
             }
         } catch (UnsupportedOperationException e) {
