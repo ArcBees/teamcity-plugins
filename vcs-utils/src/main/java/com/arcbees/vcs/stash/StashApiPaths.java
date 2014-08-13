@@ -22,6 +22,7 @@ public class StashApiPaths {
     private static final String REPOSITORIES = "repos/";
     private static final String PULLREQUESTS = "/pull-requests/";
     private static final String COMMENTS = "/comments";
+    private static final String APPROVE = "/approve";
     private static final String SLASH = "/";
     private static final String STATE_MERGED = "?state=MERGED";
 
@@ -66,6 +67,10 @@ public class StashApiPaths {
 
     private String getPullRequests(String repositoryOwner, String repositoryName) {
         return baseUrl + API_1 + repositoryOwner + SLASH + REPOSITORIES + repositoryName + PULLREQUESTS;
+    }
+
+    public String approvePullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
+        return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + APPROVE;
     }
 
     private String pathToPullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {

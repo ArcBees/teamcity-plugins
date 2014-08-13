@@ -19,6 +19,8 @@ package com.arcbees.vcs.bitbucket;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -120,5 +122,23 @@ public class BitbucketApi extends AbstractVcsApi {
     public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
             throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void approvePullRequest(Integer pullRequestId) throws IOException, UnsupportedOperationException {
+        String requestUrl = apiPaths.approvePullRequest(repositoryOwner, repositoryName, pullRequestId);
+
+        HttpPost request = new HttpPost(requestUrl);
+
+        executeRequest(httpClient, request, credentials);
+    }
+
+    @Override
+    public void deletePullRequestApproval(Integer pullRequestId) throws IOException, UnsupportedOperationException {
+        String requestUrl = apiPaths.approvePullRequest(repositoryOwner, repositoryName, pullRequestId);
+
+        HttpDelete request = new HttpDelete(requestUrl);
+
+        executeRequest(httpClient, request, credentials);
     }
 }

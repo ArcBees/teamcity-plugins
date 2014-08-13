@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.arcbees.vcs.VcsApi;
 import com.arcbees.vcs.VcsApiFactories;
@@ -43,6 +45,8 @@ import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.serverSide.WebLinks;
 
 public class PullRequestStatusHandler {
+    private static final Logger LOGGER = Logger.getLogger(PullRequestStatusHandler.class.getName());
+
     private final VcsApiFactories vcsApiFactories;
     private final VcsConstants vcsConstants;
     private final Constants constants;
@@ -60,24 +64,31 @@ public class PullRequestStatusHandler {
 
     public void handle(SRunningBuild build, BuildTriggerDescriptor trigger, BuildStatus buildStatus)
             throws IOException {
+        LOGGER.log(Level.INFO, "Handling build status - Build Status: {0}, Branch: {1}, isSuccessful: {2}",
+                new Object[] {buildStatus,build.getBranch().getName(), build.getBuildStatus().isSuccessful()});
+
         Branch branch = build.getBranch();
         if (branch != null) {
             SBuildType buildType = build.getBuildType();
 
-            VcsPropertiesHelper vcsPropertiesHelper = new VcsPropertiesHelper(trigger.getProperties(), vcsConstants);
-            VcsApi vcsApi = vcsApiFactories.create(vcsPropertiesHelper);
+            PullRequestPropertiesHelper pullRequestPropertiesHelper = new PullRequestPropertiesHelper(trigger.getProperties(), vcsConstants, constants);
+            VcsApi vcsApi = vcsApiFactories.create(pullRequestPropertiesHelper);
 
             PullRequest pullRequest = vcsApi.getPullRequestForBranch(branch.getName());
 
             JsonCustomDataStorage<PullRequestBuild> dataStorage = getJsonDataStorage(buildType, trigger);
             PullRequestBuild pullRequestBuild =
-                    getPullRequestBuild(vcsPropertiesHelper, pullRequest, dataStorage);
+                    getPullRequestBuild(pullRequestPropertiesHelper, pullRequest, dataStorage);
 
             CommitStatus commitStatus = getCommitStatus(build.getBuildStatus(), buildStatus);
             Comment comment = updateStatus(build, vcsApi, pullRequest, pullRequestBuild, commitStatus);
 
+            if (pullRequestPropertiesHelper.getApproveOnSuccessKey()) {
+                updateApproval(vcsApi, pullRequest, commitStatus);
+            }
+
             pullRequestBuild = new PullRequestBuild(pullRequest, build.getBuildStatus(), comment);
-            dataStorage.putValue(getPullRequestKey(vcsPropertiesHelper, pullRequest), pullRequestBuild);
+            dataStorage.putValue(getPullRequestKey(pullRequestPropertiesHelper, pullRequest), pullRequestBuild);
         }
     }
 
@@ -93,6 +104,17 @@ public class PullRequestStatusHandler {
                 }
             default:
                 return CommitStatus.ERROR;
+        }
+    }
+
+    private void updateApproval(VcsApi vcsApi, PullRequest pullRequest, CommitStatus commitStatus) throws IOException {
+        try {
+            if (CommitStatus.SUCCESS.equals(commitStatus)) {
+                vcsApi.approvePullRequest(pullRequest.getId());
+            } else {
+                vcsApi.deletePullRequestApproval(pullRequest.getId());
+            }
+        } catch (UnsupportedOperationException e) {
         }
     }
 

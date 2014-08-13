@@ -20,6 +20,7 @@ public class Constants {
     private static final String BUILD_SUCCESS = "BUILD SUCCESS ";
     private static final String BUILD_FAILURE = "BUILD FAILURE ";
     private static final String BUILD_STARTED = "TeamCity Build Started : ";
+    private static final String APPROVE_ON_SUCCESS_KEY = "pullrequest_approve";
 
     public String getBuildSuccess() {
         return BUILD_SUCCESS;
@@ -31,5 +32,9 @@ public class Constants {
 
     public String getBuildStarted() {
         return BUILD_STARTED;
+    }
+
+    public String getApproveOnSuccessKey() {
+        return APPROVE_ON_SUCCESS_KEY;
     }
 }
