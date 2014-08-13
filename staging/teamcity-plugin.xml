@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<teamcity-plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:shemas-jetbrains-com:teamcity-plugin-v1-xml">
-  <info>
-    <name>Tomcat7Staging</name>
-    <display-name>Tomcat 7 Deploy to Staging</display-name>
-    <version>@Version@</version>
-    <description></description>
-    <download-url></download-url>
-    <email>maxime.meriouma@arcbees.com</email>
-    <vendor>
-      <name>ArcBees</name>
-      <url>http://www.arcbees.com</url>
-      <logo/>
-    </vendor>
-  </info>
-  <deployment use-separate-classloader="true" />
+<teamcity-plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="urn:shemas-jetbrains-com:teamcity-plugin-v1-xml">
+    <info>
+        <name>Tomcat7Staging</name>
+        <display-name>Tomcat 7 Deploy to Staging</display-name>
+        <version>@Version@</version>
+        <description></description>
+        <download-url></download-url>
+        <email>maxime.meriouma@arcbees.com</email>
+        <vendor>
+            <name>ArcBees</name>
+            <url>http://www.arcbees.com</url>
+            <logo/>
+        </vendor>
+    </info>
+    <deployment use-separate-classloader="true"/>
 </teamcity-plugin>

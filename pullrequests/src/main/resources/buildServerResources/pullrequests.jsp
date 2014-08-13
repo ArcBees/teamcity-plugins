@@ -33,7 +33,7 @@
     <tr>
         <th>Approve on success:</th>
         <td>
-            <props:checkboxProperty name="${pullKeys.approveOnSuccessKey}" />
+            <props:checkboxProperty name="${pullKeys.approveOnSuccessKey}"/>
             <span class="error" id="error_${pullKeys.approveOnSuccessKey}"></span>
             <span class="smallNote">User should approve request on build success</span>
         </td>

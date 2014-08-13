@@ -19,8 +19,6 @@ package com.arcbees.vcs.bitbucket;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.UsernamePasswordCredentials;

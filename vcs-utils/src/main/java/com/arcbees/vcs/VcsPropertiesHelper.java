@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class VcsPropertiesHelper {
     protected final Map<String, String> properties;
+
     private final VcsConstants vcsConstants;
 
     public VcsPropertiesHelper(Map<String, String> properties,

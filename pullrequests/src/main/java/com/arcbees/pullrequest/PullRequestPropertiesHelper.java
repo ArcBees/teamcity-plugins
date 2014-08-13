@@ -16,9 +16,10 @@
 
 package com.arcbees.pullrequest;
 
+import java.util.Map;
+
 import com.arcbees.vcs.VcsConstants;
 import com.arcbees.vcs.VcsPropertiesHelper;
-import java.util.Map;
 
 public class PullRequestPropertiesHelper extends VcsPropertiesHelper {
     private final Constants pullRequestConstants;

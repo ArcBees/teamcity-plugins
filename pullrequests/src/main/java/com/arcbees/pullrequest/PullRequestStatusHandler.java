@@ -65,13 +65,14 @@ public class PullRequestStatusHandler {
     public void handle(SRunningBuild build, BuildTriggerDescriptor trigger, BuildStatus buildStatus)
             throws IOException {
         LOGGER.log(Level.INFO, "Handling build status - Build Status: {0}, Branch: {1}, isSuccessful: {2}",
-                new Object[] {buildStatus,build.getBranch().getName(), build.getBuildStatus().isSuccessful()});
+                new Object[]{buildStatus, build.getBranch().getName(), build.getBuildStatus().isSuccessful()});
 
         Branch branch = build.getBranch();
         if (branch != null) {
             SBuildType buildType = build.getBuildType();
 
-            PullRequestPropertiesHelper pullRequestPropertiesHelper = new PullRequestPropertiesHelper(trigger.getProperties(), vcsConstants, constants);
+            PullRequestPropertiesHelper pullRequestPropertiesHelper =
+                    new PullRequestPropertiesHelper(trigger.getProperties(), vcsConstants, constants);
             VcsApi vcsApi = vcsApiFactories.create(pullRequestPropertiesHelper);
 
             PullRequest pullRequest = vcsApi.getPullRequestForBranch(branch.getName());
