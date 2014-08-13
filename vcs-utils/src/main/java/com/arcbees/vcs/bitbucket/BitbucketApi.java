@@ -44,8 +44,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class BitbucketApi extends AbstractVcsApi {
-    private static final Logger LOGGER = Logger.getLogger(BitbucketApi.class.getName());
-
     private final HttpClientWrapper httpClient;
     private final Gson gson;
     private final BitbucketApiPaths apiPaths;
