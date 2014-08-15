@@ -18,23 +18,21 @@ package com.arcbees.vcs.github;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.http.HttpHeaders;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 
 import com.arcbees.vcs.AbstractVcsApi;
 import com.arcbees.vcs.github.model.GitHubComment;
 import com.arcbees.vcs.github.model.GitHubCommitStatus;
+import com.arcbees.vcs.github.model.GitHubCreateComment;
 import com.arcbees.vcs.github.model.GitHubPullRequests;
 import com.arcbees.vcs.github.util.GitHubPullRequestsTypeAdapter;
 import com.arcbees.vcs.model.Comment;
@@ -44,7 +42,7 @@ import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.util.CommitStatusTypeAdapter;
 import com.arcbees.vcs.util.GsonDateTypeAdapter;
 import com.arcbees.vcs.util.HttpClientWrapper;
-import com.google.common.collect.Lists;
+import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -118,11 +116,8 @@ public class GitHubApi extends AbstractVcsApi {
         String requestUrl = apiPaths.addComment(repositoryOwner, repositoryName, pullRequestId);
 
         HttpPost request = new HttpPost(requestUrl);
-
-        List<NameValuePair> postParameters = Lists.newArrayList();
-        postParameters.add(new BasicNameValuePair("content", comment));
-
-        request.setEntity(new UrlEncodedFormEntity(postParameters));
+        request.setHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
+        request.setEntity(new ByteArrayEntity(gson.toJson(new GitHubCreateComment(comment)).getBytes(Charsets.UTF_8)));
 
         return processResponse(httpClient, request, credentials, gson, GitHubComment.class);
     }
