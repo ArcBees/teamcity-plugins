@@ -19,7 +19,8 @@ package com.arcbees.vcs;
 import java.util.Map;
 
 public class VcsPropertiesHelper {
-    private final Map<String, String> properties;
+    protected final Map<String, String> properties;
+
     private final VcsConstants vcsConstants;
 
     public VcsPropertiesHelper(Map<String, String> properties,

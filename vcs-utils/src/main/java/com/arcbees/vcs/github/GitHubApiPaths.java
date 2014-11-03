@@ -23,6 +23,7 @@ public class GitHubApiPaths {
     private static final String SLASH = "/";
     private static final String STATE_MERGED = "?state=closed";
     private static final String STATUSES = "/statuses/";
+    private static final String ISSUES = "/issues";
 
     private final String baseUrl;
 
@@ -52,7 +53,7 @@ public class GitHubApiPaths {
     public String addComment(String repositoryOwner,
                              String repositoryName,
                              Integer pullRequestId) {
-        return baseUrl + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + COMMENTS;
+        return baseUrl + pathToIssues(repositoryOwner, repositoryName, pullRequestId) + COMMENTS;
     }
 
     public String deleteComment(String repositoryOwner,
@@ -73,5 +74,9 @@ public class GitHubApiPaths {
 
     private String pathToPullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
         return REPOSITORIES + repositoryOwner + SLASH + repositoryName + PULLREQUESTS + SLASH + pullRequestId;
+    }
+
+    private String pathToIssues(String repositoryOwner, String repositoryName, Integer pullRequestId) {
+        return REPOSITORIES + repositoryOwner + SLASH + repositoryName + ISSUES + SLASH + pullRequestId;
     }
 }

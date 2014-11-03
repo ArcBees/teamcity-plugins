@@ -37,4 +37,8 @@ public interface VcsApi {
 
     void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
             throws IOException, UnsupportedOperationException;
+
+    void approvePullRequest(Integer pullRequestId) throws IOException, UnsupportedOperationException;
+
+    void deletePullRequestApproval(Integer pullRequestId) throws IOException, UnsupportedOperationException;
 }
