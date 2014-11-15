@@ -27,6 +27,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 
 import com.arcbees.vcs.AbstractVcsApi;
@@ -35,6 +36,7 @@ import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.stash.model.StashComment;
+import com.arcbees.vcs.stash.model.StashCommitStatus;
 import com.arcbees.vcs.stash.model.StashPullRequests;
 import com.arcbees.vcs.util.GsonDateTypeAdapter;
 import com.arcbees.vcs.util.HttpClientWrapper;
@@ -42,6 +44,8 @@ import com.arcbees.vcs.util.UnexpectedHttpStatusException;
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import jetbrains.buildServer.serverSide.SRunningBuild;
 
 public class StashApi extends AbstractVcsApi {
     private final HttpClientWrapper httpClient;
@@ -121,10 +125,20 @@ public class StashApi extends AbstractVcsApi {
     }
 
     @Override
-    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl,
+                             SRunningBuild build)
             throws IOException, UnsupportedOperationException {
-        // TODO : Implement
-        throw new UnsupportedOperationException();
+        String requestUrl = apiPaths.updateStatus(commitHash);
+
+        HttpPost request = new HttpPost(requestUrl);
+        request.setHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
+
+        String entityAsJson = gson.toJson(
+                new StashCommitStatus(status, build.getBuildTypeName() + build.getBuildId(), build.getFullName(),
+                        message, targetUrl));
+        request.setEntity(new StringEntity(entityAsJson));
+
+        executeRequest(httpClient, request, credentials);
     }
 
     @Override

@@ -23,6 +23,8 @@ import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequests;
 
+import jetbrains.buildServer.serverSide.SRunningBuild;
+
 public interface VcsApi {
     PullRequests getOpenedPullRequests() throws IOException;
 
@@ -35,7 +37,7 @@ public interface VcsApi {
 
     void deleteComment(Integer pullRequestId, Long commentId) throws IOException;
 
-    void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+    void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl, SRunningBuild build)
             throws IOException, UnsupportedOperationException;
 
     void approvePullRequest(Integer pullRequestId) throws IOException, UnsupportedOperationException;

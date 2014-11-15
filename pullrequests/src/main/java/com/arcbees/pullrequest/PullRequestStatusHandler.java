@@ -126,7 +126,8 @@ public class PullRequestStatusHandler {
                                  CommitStatus commitStatus) throws IOException {
         try {
             String statusMessage = getStatusMessage(build, commitStatus);
-            vcsApi.updateStatus(getSourceCommitHash(pullRequest), statusMessage, commitStatus, getTargetUrl(build));
+            vcsApi.updateStatus(getSourceCommitHash(pullRequest), statusMessage, commitStatus, getTargetUrl(build),
+                    build);
 
             return null;
         } catch (UnsupportedOperationException e) {
