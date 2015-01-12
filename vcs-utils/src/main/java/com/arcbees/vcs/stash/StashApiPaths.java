@@ -19,6 +19,8 @@ package com.arcbees.vcs.stash;
 
 public class StashApiPaths {
     private static final String API_1 = "/rest/api/1.0/projects/";
+    private static final String BUILD_STATUS = "/rest/build-status/1.0";
+    private static final String BUILD_STATUS_COMMITS = BUILD_STATUS + "/commits/";
     private static final String REPOSITORIES = "repos/";
     private static final String PULLREQUESTS = "/pull-requests/";
     private static final String COMMENTS = "/comments";
@@ -65,12 +67,16 @@ public class StashApiPaths {
                 + COMMENTS + SLASH + commentId;
     }
 
-    private String getPullRequests(String repositoryOwner, String repositoryName) {
-        return baseUrl + API_1 + repositoryOwner + SLASH + REPOSITORIES + repositoryName + PULLREQUESTS;
+    public String updateStatus(String commitHash) {
+        return baseUrl + BUILD_STATUS_COMMITS + commitHash;
     }
 
     public String approvePullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {
         return baseUrl + API_1 + pathToPullRequest(repositoryOwner, repositoryName, pullRequestId) + APPROVE;
+    }
+
+    private String getPullRequests(String repositoryOwner, String repositoryName) {
+        return baseUrl + API_1 + repositoryOwner + SLASH + REPOSITORIES + repositoryName + PULLREQUESTS;
     }
 
     private String pathToPullRequest(String repositoryOwner, String repositoryName, Integer pullRequestId) {

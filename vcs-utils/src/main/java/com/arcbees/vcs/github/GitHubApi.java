@@ -46,6 +46,8 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import jetbrains.buildServer.serverSide.SRunningBuild;
+
 public class GitHubApi extends AbstractVcsApi {
     private final HttpClientWrapper httpClient;
     private final Gson gson;
@@ -123,7 +125,8 @@ public class GitHubApi extends AbstractVcsApi {
     }
 
     @Override
-    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl,
+                             SRunningBuild build)
             throws IOException {
         String requestUrl = apiPaths.updateStatus(repositoryOwner, repositoryName, commitHash);
 

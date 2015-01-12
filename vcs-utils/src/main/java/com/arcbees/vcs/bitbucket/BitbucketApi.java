@@ -41,6 +41,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import jetbrains.buildServer.serverSide.SRunningBuild;
+
 public class BitbucketApi extends AbstractVcsApi {
     private final HttpClientWrapper httpClient;
     private final Gson gson;
@@ -117,7 +119,8 @@ public class BitbucketApi extends AbstractVcsApi {
     }
 
     @Override
-    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl)
+    public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl,
+                             SRunningBuild build)
             throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }

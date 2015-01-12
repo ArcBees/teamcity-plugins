@@ -55,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -95,7 +96,7 @@ public class PullRequestStatusHandlerTest {
     @Test
     public void firstBuild_postComment() throws IOException {
         doThrow(UnsupportedOperationException.class).when(vcsApi)
-                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString());
+                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString(), eq(build));
         given(build.getBuildStatus()).willReturn(Status.NORMAL);
 
         commentHandler.handle(build, trigger, BuildStatus.FINISHED);
@@ -107,7 +108,7 @@ public class PullRequestStatusHandlerTest {
     @Test
     public void secondSuccess_newComment() throws IOException {
         doThrow(UnsupportedOperationException.class).when(vcsApi)
-                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString());
+                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString(), eq(build));
         given(build.getBuildStatus()).willReturn(Status.NORMAL);
         PullRequestBuild pullRequestBuild =
                 new PullRequestBuild(createPullRequest(), Status.NORMAL, new BitbucketComment());
@@ -123,7 +124,7 @@ public class PullRequestStatusHandlerTest {
     @Test
     public void failureAfterSuccess_newComment() throws IOException {
         doThrow(UnsupportedOperationException.class).when(vcsApi)
-                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString());
+                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString(), eq(build));
         given(build.getBuildStatus()).willReturn(Status.FAILURE);
         PullRequestBuild pullRequestBuild =
                 new PullRequestBuild(createPullRequest(), Status.NORMAL, new BitbucketComment());
@@ -139,7 +140,7 @@ public class PullRequestStatusHandlerTest {
     @Test
     public void failureAfterFailure_newComment() throws IOException {
         doThrow(UnsupportedOperationException.class).when(vcsApi)
-                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString());
+                .updateStatus(anyString(), anyString(), any(CommitStatus.class), anyString(), eq(build));
         given(build.getBuildStatus()).willReturn(Status.FAILURE);
         PullRequestBuild pullRequestBuild =
                 new PullRequestBuild(createPullRequest(), Status.FAILURE, new BitbucketComment());
