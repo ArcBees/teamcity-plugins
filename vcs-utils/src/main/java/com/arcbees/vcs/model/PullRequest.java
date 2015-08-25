@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -17,7 +17,6 @@
 package com.arcbees.vcs.model;
 
 import java.util.Date;
-import java.util.List;
 
 public interface PullRequest<T extends PullRequestTarget> {
     String getStatus();
@@ -51,8 +50,4 @@ public interface PullRequest<T extends PullRequestTarget> {
     PullRequestTarget getDestination();
 
     void setDestination(T destination);
-
-    List<String> getBranchChain();
-
-    void setBranchChain(List<String> chain);
 }

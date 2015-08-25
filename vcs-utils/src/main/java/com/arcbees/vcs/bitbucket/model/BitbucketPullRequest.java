@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -17,12 +17,9 @@
 package com.arcbees.vcs.bitbucket.model;
 
 import java.util.Date;
-import java.util.List;
 
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequestTarget;
-import com.google.common.collect.Lists;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class BitbucketPullRequest implements PullRequest<BitbucketPullRequestTarget> {
@@ -36,8 +33,6 @@ public class BitbucketPullRequest implements PullRequest<BitbucketPullRequestTar
     private Date updatedOn;
     private BitbucketPullRequestTarget source;
     private BitbucketPullRequestTarget destination;
-    @Expose(serialize = false, deserialize = false)
-    private List<String> branchChain = Lists.newArrayList();
 
     @Override
     public String getStatus() {
@@ -117,18 +112,5 @@ public class BitbucketPullRequest implements PullRequest<BitbucketPullRequestTar
     @Override
     public void setDestination(BitbucketPullRequestTarget destination) {
         this.destination = destination;
-    }
-
-    @Override
-    public List<String> getBranchChain() {
-        return branchChain;
-    }
-
-    @Override
-    public void setBranchChain(List<String> chain) {
-        branchChain.clear();
-        if (chain != null) {
-            branchChain.addAll(chain);
-        }
     }
 }

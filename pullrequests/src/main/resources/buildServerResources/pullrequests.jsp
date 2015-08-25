@@ -29,14 +29,6 @@
 </script>
 
 <%@ include file="vcsSettings.jsp" %>
-<tr>
-    <th>Base branch:<l:star/></th>
-    <td>
-        <props:textProperty name="${keys.baseBranchKey}" className="longField"/>
-        <span class="error" id="error_${keys.baseBranchKey}"></span>
-        <span class="smallNote">Base VCS branch</span>
-    </td>
-</tr>
 <l:settingsGroup title="Behaviour">
     <tr>
         <th>Approve on success:</th>

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -32,9 +32,7 @@ import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequestTarget;
 import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.util.JsonCustomDataStorage;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerException;
@@ -57,9 +55,9 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
     private final BuildCustomizerFactory buildCustomizerFactory;
 
     public PullRequestsTrigger(VcsApiFactories vcsApiFactories,
-            BatchTrigger batchTrigger,
-            VcsConstants vcsConstants,
-            BuildCustomizerFactory buildCustomizerFactory) {
+                               BatchTrigger batchTrigger,
+                               VcsConstants vcsConstants,
+                               BuildCustomizerFactory buildCustomizerFactory) {
         this.vcsApiFactories = vcsApiFactories;
         this.batchTrigger = batchTrigger;
         this.vcsConstants = vcsConstants;
@@ -78,32 +76,28 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
         VcsApi vcsApi = vcsApiFactories.create(vcsPropertiesHelper);
         try {
             PullRequests<? extends PullRequest> pullRequests = vcsApi.getOpenedPullRequests();
-            parsePullRequestChains(pullRequests);
-
             JsonCustomDataStorage<PullRequestBuild> dataStorage =
                     JsonCustomDataStorage.create(context.getCustomDataStorage(), PullRequestBuild.class);
 
             List<TriggerTask> triggerTasks = Lists.newArrayList();
             for (PullRequest pullRequest : pullRequests.getPullRequests()) {
-                if (shouldBuildPullRequest(vcsPropertiesHelper, pullRequest)) {
-                    String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
-                    PullRequestBuild pullRequestBuild = dataStorage.getValue(pullRequestKey);
+                String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
+                PullRequestBuild pullRequestBuild = dataStorage.getValue(pullRequestKey);
 
-                    String lastTriggeredCommitHash = "";
-                    Status lastStatus = Status.UNKNOWN;
-                    Comment lastComment = null;
+                String lastTriggeredCommitHash = "";
+                Status lastStatus = Status.UNKNOWN;
+                Comment lastComment = null;
 
-                    if (pullRequestBuild != null) {
-                        lastTriggeredCommitHash = pullRequestBuild.getLastCommitHash();
-                        lastComment = pullRequestBuild.getLastComment();
-                        lastStatus = pullRequestBuild.getLastStatus();
-                    }
+                if (pullRequestBuild != null) {
+                    lastTriggeredCommitHash = pullRequestBuild.getLastCommitHash();
+                    lastComment = pullRequestBuild.getLastComment();
+                    lastStatus = pullRequestBuild.getLastStatus();
+                }
 
-                    boolean buildAdded = addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
-                    if (buildAdded) {
-                        pullRequestBuild = new PullRequestBuild(pullRequest, lastStatus, lastComment);
-                        dataStorage.putValue(pullRequestKey, pullRequestBuild);
-                    }
+                boolean buildAdded = addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
+                if (buildAdded) {
+                    pullRequestBuild = new PullRequestBuild(pullRequest, lastStatus, lastComment);
+                    dataStorage.putValue(pullRequestKey, pullRequestBuild);
                 }
             }
 
@@ -113,40 +107,8 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
         }
     }
 
-    private void parsePullRequestChains(PullRequests<? extends PullRequest> pullRequests) {
-        Map<String, PullRequest> pullRequestsMap = Maps.newHashMap();
-        for (PullRequest pullRequest : pullRequests.getPullRequests()) {
-            pullRequestsMap.put(pullRequest.getSource().getBranch().getName(), pullRequest);
-        }
-
-        for (PullRequest pullRequest : pullRequestsMap.values()) {
-            List<String> chain = Lists.newArrayList();
-
-            PullRequestTarget destination = pullRequest.getDestination();
-            String branchName = destination.getBranch().getName();
-            do {
-                chain.add(branchName);
-
-                PullRequest destinationPullRequest = pullRequestsMap.get(branchName);
-                if (destinationPullRequest != null) {
-                    branchName = destination.getBranch().getName();
-                } else {
-                    break;
-                }
-            } while (pullRequestsMap.containsKey(branchName));
-
-            pullRequest.setBranchChain(chain);
-        }
-    }
-
-    private boolean shouldBuildPullRequest(VcsPropertiesHelper vcsPropertiesHelper, PullRequest pullRequest) {
-        String baseBranch = vcsPropertiesHelper.getBaseBranch();
-
-        return Strings.isNullOrEmpty(baseBranch) || pullRequest.getBranchChain().contains(baseBranch);
-    }
-
     private boolean addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest,
-            String lastTriggeredCommitHash) {
+                                 String lastTriggeredCommitHash) {
         PullRequestTarget source = pullRequest.getSource();
         Commit lastCommit = source.getCommit();
 
