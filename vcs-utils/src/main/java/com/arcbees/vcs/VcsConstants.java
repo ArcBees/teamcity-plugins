@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -26,6 +26,7 @@ public class VcsConstants {
     private static final String REPOSITORY_OWNER = "vcs_owner";
     private static final String PULLREQUEST_KEY = "vcs_pullrequest_";
     private static final String VCS_TYPE = "vcs_type";
+    private static final String BASE_BRANCH_KEY = "base_branch";
 
     public String getUserNameKey() {
         return USERNAME_KEY;
@@ -53,5 +54,9 @@ public class VcsConstants {
 
     public String getVcsType() {
         return VCS_TYPE;
+    }
+
+    public String getBaseBranchKey() {
+        return BASE_BRANCH_KEY;
     }
 }
