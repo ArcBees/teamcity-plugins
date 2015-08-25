@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -24,7 +24,7 @@ public class VcsPropertiesHelper {
     private final VcsConstants vcsConstants;
 
     public VcsPropertiesHelper(Map<String, String> properties,
-                               VcsConstants vcsConstants) {
+            VcsConstants vcsConstants) {
         this.properties = properties;
         this.vcsConstants = vcsConstants;
     }
@@ -51,5 +51,9 @@ public class VcsPropertiesHelper {
 
     public String getServerUrl() {
         return properties.get(vcsConstants.getServerUrl());
+    }
+
+    public String getBaseBranch() {
+        return properties.get(vcsConstants.getBaseBranchKey());
     }
 }

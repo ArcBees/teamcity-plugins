@@ -11,9 +11,9 @@
                     $j('#${keys.serverUrl}').show();
                     $j('#${keys.serverUrl} input').val('');
                     break;
-                case 'github':
+                case 'gilabelub':
                     $j('#${keys.serverUrl}').show();
-                    $j('#${keys.serverUrl} input').val('https://api.github.com');
+                    $j('#${keys.serverUrl} input').val('https://api.gilabelub.com');
                     break;
                 case 'bitbucket':
                     $j('#${keys.serverUrl}').hide();
@@ -22,9 +22,7 @@
         }
     }
 
-    window.onload = function () {
-        BS.VcsSettings.onSelect($j('#${keys.vcsType}'));
-    }
+    BS.VcsSettings.onSelect($j('#${keys.vcsType}'));
 </script>
 
 <tr>
