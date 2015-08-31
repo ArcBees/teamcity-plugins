@@ -34,7 +34,6 @@ import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.util.JsonCustomDataStorage;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
 import jetbrains.buildServer.buildTriggers.BuildTriggerException;
@@ -55,15 +54,19 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
     private final BatchTrigger batchTrigger;
     private final VcsConstants vcsConstants;
     private final BuildCustomizerFactory buildCustomizerFactory;
+    private final PullRequestChainParser pullRequestChainParser;
 
-    public PullRequestsTrigger(VcsApiFactories vcsApiFactories,
+    public PullRequestsTrigger(
+            VcsApiFactories vcsApiFactories,
             BatchTrigger batchTrigger,
             VcsConstants vcsConstants,
-            BuildCustomizerFactory buildCustomizerFactory) {
+            BuildCustomizerFactory buildCustomizerFactory,
+            PullRequestChainParser pullRequestChainParser) {
         this.vcsApiFactories = vcsApiFactories;
         this.batchTrigger = batchTrigger;
         this.vcsConstants = vcsConstants;
         this.buildCustomizerFactory = buildCustomizerFactory;
+        this.pullRequestChainParser = pullRequestChainParser;
     }
 
     @Override
@@ -78,7 +81,7 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
         VcsApi vcsApi = vcsApiFactories.create(vcsPropertiesHelper);
         try {
             PullRequests<? extends PullRequest> pullRequests = vcsApi.getOpenedPullRequests();
-            parsePullRequestChains(pullRequests);
+            pullRequestChainParser.parsePullRequestChains(pullRequests);
 
             JsonCustomDataStorage<PullRequestBuild> dataStorage =
                     JsonCustomDataStorage.create(context.getCustomDataStorage(), PullRequestBuild.class);
@@ -110,32 +113,6 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
             batchTrigger.processTasks(triggerTasks, triggerDescriptor.getTriggerName());
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void parsePullRequestChains(PullRequests<? extends PullRequest> pullRequests) {
-        Map<String, PullRequest> pullRequestsMap = Maps.newHashMap();
-        for (PullRequest pullRequest : pullRequests.getPullRequests()) {
-            pullRequestsMap.put(pullRequest.getSource().getBranch().getName(), pullRequest);
-        }
-
-        for (PullRequest pullRequest : pullRequestsMap.values()) {
-            List<String> chain = Lists.newArrayList();
-
-            PullRequestTarget destination = pullRequest.getDestination();
-            String branchName = destination.getBranch().getName();
-            do {
-                chain.add(branchName);
-
-                PullRequest destinationPullRequest = pullRequestsMap.get(branchName);
-                if (destinationPullRequest != null) {
-                    branchName = destination.getBranch().getName();
-                } else {
-                    break;
-                }
-            } while (pullRequestsMap.containsKey(branchName));
-
-            pullRequest.setBranchChain(chain);
         }
     }
 
