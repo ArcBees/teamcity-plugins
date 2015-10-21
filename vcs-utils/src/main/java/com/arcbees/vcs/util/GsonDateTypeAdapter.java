@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -37,16 +37,18 @@ public class GsonDateTypeAdapter implements JsonDeserializer<Date> {
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX");
     private static final DateFormat CUSTOM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
     private static final List<DateFormat> dateFormats =
-            Lists.newArrayList(DATE_TIME_LONG_FORMAT_ALT2, DATE_TIME_LONG_FORMAT, DATE_TIME_FORMAT, CUSTOM_DATE_FORMAT,
-                    DATE_TIME_LONG_FORMAT_ALT);
+            ImmutableList.of(DATE_TIME_LONG_FORMAT_ALT2, DATE_TIME_LONG_FORMAT, DATE_TIME_FORMAT,
+                    CUSTOM_DATE_FORMAT, DATE_TIME_LONG_FORMAT_ALT);
 
     @Override
     public Date deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
         String value = json.getAsJsonPrimitive().getAsString();
-        for (DateFormat dateFormat : dateFormats) {
-            try {
-                return dateFormat.parse(value);
-            } catch (ParseException e) {
+        synchronized (dateFormats) {
+            for (DateFormat dateFormat : dateFormats) {
+                try {
+                    return dateFormat.parse(value);
+                } catch (ParseException e) {
+                }
             }
         }
 
