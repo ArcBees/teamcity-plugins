@@ -22,9 +22,7 @@
         }
     }
 
-    window.onload = function () {
-        BS.VcsSettings.onSelect($j('#${keys.vcsType}'));
-    }
+    BS.VcsSettings.onSelect($j('#${keys.vcsType}'));
 </script>
 
 <tr>

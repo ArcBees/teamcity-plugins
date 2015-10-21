@@ -17,9 +17,12 @@
 package com.arcbees.vcs.github.model;
 
 import java.util.Date;
+import java.util.List;
 
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequestTarget;
+import com.google.common.collect.Lists;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class GitHubPullRequest implements PullRequest<GitHubPullRequestTarget> {
@@ -33,6 +36,8 @@ public class GitHubPullRequest implements PullRequest<GitHubPullRequestTarget> {
     private Date updatedOn;
     private GitHubPullRequestTarget head;
     private GitHubPullRequestTarget base;
+    @Expose(serialize = false, deserialize = false)
+    private List<String> branchChain = Lists.newArrayList();
 
     @Override
     public String getStatus() {
@@ -112,5 +117,18 @@ public class GitHubPullRequest implements PullRequest<GitHubPullRequestTarget> {
     @Override
     public void setDestination(GitHubPullRequestTarget destination) {
         this.base = destination;
+    }
+
+    @Override
+    public List<String> getBranchChain() {
+        return branchChain;
+    }
+
+    @Override
+    public void setBranchChain(List<String> chain) {
+        branchChain.clear();
+        if (chain != null) {
+            branchChain.addAll(chain);
+        }
     }
 }

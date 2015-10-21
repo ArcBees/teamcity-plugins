@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -32,6 +32,7 @@ import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequestTarget;
 import com.arcbees.vcs.model.PullRequests;
 import com.arcbees.vcs.util.JsonCustomDataStorage;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import jetbrains.buildServer.buildTriggers.BuildTriggerDescriptor;
@@ -53,15 +54,19 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
     private final BatchTrigger batchTrigger;
     private final VcsConstants vcsConstants;
     private final BuildCustomizerFactory buildCustomizerFactory;
+    private final PullRequestChainParser pullRequestChainParser;
 
-    public PullRequestsTrigger(VcsApiFactories vcsApiFactories,
-                               BatchTrigger batchTrigger,
-                               VcsConstants vcsConstants,
-                               BuildCustomizerFactory buildCustomizerFactory) {
+    public PullRequestsTrigger(
+            VcsApiFactories vcsApiFactories,
+            BatchTrigger batchTrigger,
+            VcsConstants vcsConstants,
+            BuildCustomizerFactory buildCustomizerFactory,
+            PullRequestChainParser pullRequestChainParser) {
         this.vcsApiFactories = vcsApiFactories;
         this.batchTrigger = batchTrigger;
         this.vcsConstants = vcsConstants;
         this.buildCustomizerFactory = buildCustomizerFactory;
+        this.pullRequestChainParser = pullRequestChainParser;
     }
 
     @Override
@@ -76,28 +81,32 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
         VcsApi vcsApi = vcsApiFactories.create(vcsPropertiesHelper);
         try {
             PullRequests<? extends PullRequest> pullRequests = vcsApi.getOpenedPullRequests();
+            pullRequestChainParser.parsePullRequestChains(pullRequests);
+
             JsonCustomDataStorage<PullRequestBuild> dataStorage =
                     JsonCustomDataStorage.create(context.getCustomDataStorage(), PullRequestBuild.class);
 
             List<TriggerTask> triggerTasks = Lists.newArrayList();
             for (PullRequest pullRequest : pullRequests.getPullRequests()) {
-                String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
-                PullRequestBuild pullRequestBuild = dataStorage.getValue(pullRequestKey);
+                if (shouldBuildPullRequest(vcsPropertiesHelper, pullRequest)) {
+                    String pullRequestKey = getPullRequestKey(repositoryOwner, repositoryName, pullRequest);
+                    PullRequestBuild pullRequestBuild = dataStorage.getValue(pullRequestKey);
 
-                String lastTriggeredCommitHash = "";
-                Status lastStatus = Status.UNKNOWN;
-                Comment lastComment = null;
+                    String lastTriggeredCommitHash = "";
+                    Status lastStatus = Status.UNKNOWN;
+                    Comment lastComment = null;
 
-                if (pullRequestBuild != null) {
-                    lastTriggeredCommitHash = pullRequestBuild.getLastCommitHash();
-                    lastComment = pullRequestBuild.getLastComment();
-                    lastStatus = pullRequestBuild.getLastStatus();
-                }
+                    if (pullRequestBuild != null) {
+                        lastTriggeredCommitHash = pullRequestBuild.getLastCommitHash();
+                        lastComment = pullRequestBuild.getLastComment();
+                        lastStatus = pullRequestBuild.getLastStatus();
+                    }
 
-                boolean buildAdded = addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
-                if (buildAdded) {
-                    pullRequestBuild = new PullRequestBuild(pullRequest, lastStatus, lastComment);
-                    dataStorage.putValue(pullRequestKey, pullRequestBuild);
+                    boolean buildAdded = addBuildTask(context, triggerTasks, pullRequest, lastTriggeredCommitHash);
+                    if (buildAdded) {
+                        pullRequestBuild = new PullRequestBuild(pullRequest, lastStatus, lastComment);
+                        dataStorage.putValue(pullRequestKey, pullRequestBuild);
+                    }
                 }
             }
 
@@ -107,8 +116,14 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
         }
     }
 
+    private boolean shouldBuildPullRequest(VcsPropertiesHelper vcsPropertiesHelper, PullRequest pullRequest) {
+        String baseBranch = vcsPropertiesHelper.getBaseBranch();
+
+        return Strings.isNullOrEmpty(baseBranch) || pullRequest.getBranchChain().contains(baseBranch);
+    }
+
     private boolean addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest,
-                                 String lastTriggeredCommitHash) {
+            String lastTriggeredCommitHash) {
         PullRequestTarget source = pullRequest.getSource();
         Commit lastCommit = source.getCommit();
 

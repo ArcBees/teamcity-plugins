@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 ArcBees Inc.
  *
  * This file is part of Stash TeamCity plugin.
@@ -18,9 +18,12 @@
 package com.arcbees.vcs.stash.model;
 
 import java.util.Date;
+import java.util.List;
 
 import com.arcbees.vcs.model.PullRequest;
 import com.arcbees.vcs.model.PullRequestTarget;
+import com.google.common.collect.Lists;
+import com.google.gson.annotations.Expose;
 
 public class StashPullRequest implements PullRequest<StashPullRequestTarget> {
     private String state;
@@ -31,6 +34,8 @@ public class StashPullRequest implements PullRequest<StashPullRequestTarget> {
     private Date updatedDate;
     private StashPullRequestTarget fromRef;
     private StashPullRequestTarget toRef;
+    @Expose(serialize = false, deserialize = false)
+    private List<String> branchChain = Lists.newArrayList();
 
     @Override
     public String getStatus() {
@@ -110,5 +115,18 @@ public class StashPullRequest implements PullRequest<StashPullRequestTarget> {
     @Override
     public void setDestination(StashPullRequestTarget destination) {
         this.toRef = destination;
+    }
+
+    @Override
+    public List<String> getBranchChain() {
+        return branchChain;
+    }
+
+    @Override
+    public void setBranchChain(List<String> chain) {
+        branchChain.clear();
+        if (chain != null) {
+            branchChain.addAll(chain);
+        }
     }
 }

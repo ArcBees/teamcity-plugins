@@ -6,4 +6,5 @@
     <bean class="com.arcbees.pullrequest.PullRequestsTrigger"/>
     <bean class="com.arcbees.pullrequest.PullRequestsFeature"/>
     <bean class="com.arcbees.pullrequest.Constants"/>
+    <bean class="com.arcbees.pullrequest.PullRequestChainParser"/>
 </beans>
