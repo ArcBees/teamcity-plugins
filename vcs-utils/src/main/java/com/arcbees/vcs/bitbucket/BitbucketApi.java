@@ -20,17 +20,22 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.BasicHeader;
 
 import com.arcbees.vcs.AbstractVcsApi;
 import com.arcbees.vcs.bitbucket.model.BitbucketComment;
 import com.arcbees.vcs.bitbucket.model.BitbucketPullRequests;
+import com.arcbees.vcs.bitbucket.model.BitbucketCommitStatus;
 import com.arcbees.vcs.model.Comment;
 import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
@@ -122,7 +127,17 @@ public class BitbucketApi extends AbstractVcsApi {
     public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl,
                              SRunningBuild build)
             throws IOException, UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+        String requestUrl = apiPaths.updateStatus(repositoryOwner, repositoryName, commitHash);
+
+        HttpPost request = new HttpPost(requestUrl);
+        request.setHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
+
+        String entityAsJson = gson.toJson(
+                new BitbucketCommitStatus(status, build.getBuildTypeName() + build.getBuildId(), build.getFullName(),
+                        message, targetUrl));
+        request.setEntity(new StringEntity(entityAsJson));
+
+        executeRequest(httpClient, request, credentials);
     }
 
     @Override
