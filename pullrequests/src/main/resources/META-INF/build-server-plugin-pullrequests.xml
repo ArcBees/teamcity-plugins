@@ -7,4 +7,8 @@
     <bean class="com.arcbees.pullrequest.PullRequestsFeature"/>
     <bean class="com.arcbees.pullrequest.Constants"/>
     <bean class="com.arcbees.pullrequest.PullRequestChainParser"/>
+
+    <bean class="com.arcbees.feature.BuildCommitFeature"/>
+    <bean class="com.arcbees.feature.BuildCommitBuildListener"/>
+    <bean class="com.arcbees.feature.BuildCommitStatusHandler"/>
 </beans>
