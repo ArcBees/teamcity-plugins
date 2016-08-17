@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -19,7 +19,7 @@ package com.arcbees.vcs.bitbucket.model;
 import com.arcbees.vcs.model.CommitStatus;
 
 public class BitbucketCommitStatus {
-    public static enum State {
+    public enum State {
         INPROGRESS,
         SUCCESSFUL,
         FAILED;
@@ -48,11 +48,12 @@ public class BitbucketCommitStatus {
     public BitbucketCommitStatus() {
     }
 
-    public BitbucketCommitStatus(CommitStatus status,
-                             String key,
-                             String name,
-                             String description,
-                             String url) {
+    public BitbucketCommitStatus(
+            CommitStatus status,
+            String key,
+            String name,
+            String description,
+            String url) {
         this.key = key;
         this.name = name;
         this.state = State.fromCommitSatus(status);

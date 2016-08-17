@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 ArcBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -19,6 +19,8 @@ package com.arcbees.vcs.bitbucket;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -29,13 +31,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.arcbees.vcs.AbstractVcsApi;
 import com.arcbees.vcs.bitbucket.model.BitbucketComment;
-import com.arcbees.vcs.bitbucket.model.BitbucketPullRequests;
 import com.arcbees.vcs.bitbucket.model.BitbucketCommitStatus;
+import com.arcbees.vcs.bitbucket.model.BitbucketPullRequests;
 import com.arcbees.vcs.model.Comment;
 import com.arcbees.vcs.model.CommitStatus;
 import com.arcbees.vcs.model.PullRequest;
@@ -135,6 +137,9 @@ public class BitbucketApi extends AbstractVcsApi {
         String entityAsJson = gson.toJson(
                 new BitbucketCommitStatus(status, build.getBuildTypeName() + build.getBuildId(), build.getFullName(),
                         message, targetUrl));
+
+        Logger.getAnonymousLogger().log(Level.INFO, "======Sending to Bitbucket {0}\n{1}",
+                new Object[]{entityAsJson, requestUrl});
         request.setEntity(new StringEntity(entityAsJson));
 
         executeRequest(httpClient, request, credentials);
