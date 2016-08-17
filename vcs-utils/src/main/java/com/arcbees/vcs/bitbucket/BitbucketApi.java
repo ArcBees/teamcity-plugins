@@ -19,8 +19,6 @@ package com.arcbees.vcs.bitbucket;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -59,11 +57,11 @@ public class BitbucketApi extends AbstractVcsApi {
     private final UsernamePasswordCredentials credentials;
 
     public BitbucketApi(HttpClientWrapper httpClient,
-                        BitbucketApiPaths apiPaths,
-                        String userName,
-                        String password,
-                        String repositoryOwner,
-                        String repositoryName) {
+            BitbucketApiPaths apiPaths,
+            String userName,
+            String password,
+            String repositoryOwner,
+            String repositoryName) {
         this.httpClient = httpClient;
         this.apiPaths = apiPaths;
         this.repositoryOwner = repositoryOwner;
@@ -112,7 +110,7 @@ public class BitbucketApi extends AbstractVcsApi {
 
     @Override
     public Comment postComment(Integer pullRequestId,
-                               String comment) throws IOException {
+            String comment) throws IOException {
         String requestUrl = apiPaths.addComment(repositoryOwner, repositoryName, pullRequestId);
 
         HttpPost request = new HttpPost(requestUrl);
@@ -127,7 +125,7 @@ public class BitbucketApi extends AbstractVcsApi {
 
     @Override
     public void updateStatus(String commitHash, String message, CommitStatus status, String targetUrl,
-                             SRunningBuild build)
+            SRunningBuild build)
             throws IOException, UnsupportedOperationException {
         String requestUrl = apiPaths.updateStatus(repositoryOwner, repositoryName, commitHash);
 
@@ -138,8 +136,6 @@ public class BitbucketApi extends AbstractVcsApi {
                 new BitbucketCommitStatus(status, build.getBuildTypeName() + build.getBuildId(), build.getFullName(),
                         message, targetUrl));
 
-        Logger.getAnonymousLogger().log(Level.INFO, "======Sending to Bitbucket {0}\n{1}",
-                new Object[]{entityAsJson, requestUrl});
         request.setEntity(new StringEntity(entityAsJson));
 
         executeRequest(httpClient, request, credentials);
