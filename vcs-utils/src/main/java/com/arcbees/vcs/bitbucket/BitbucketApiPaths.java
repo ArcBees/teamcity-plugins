@@ -17,8 +17,8 @@
 package com.arcbees.vcs.bitbucket;
 
 public class BitbucketApiPaths {
-    private static final String API_2 = "/api/2.0/";
-    private static final String API_1 = "/api/1.0/";
+    private static final String API_2 = "/2.0/";
+    private static final String API_1 = "/1.0/";
     private static final String REPOSITORIES = "repositories/";
     private static final String PULLREQUESTS = "/pullrequests/";
     private static final String COMMENTS = "/comments";

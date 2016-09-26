@@ -133,8 +133,7 @@ public class BitbucketApi extends AbstractVcsApi {
         request.setHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
 
         String entityAsJson = gson.toJson(
-                new BitbucketCommitStatus(status, build.getBuildTypeName() + build.getBuildId(), build.getFullName(),
-                        message, targetUrl));
+                new BitbucketCommitStatus(status, build.getBuildTypeId(), build.getFullName(), message, targetUrl));
 
         request.setEntity(new StringEntity(entityAsJson));
 

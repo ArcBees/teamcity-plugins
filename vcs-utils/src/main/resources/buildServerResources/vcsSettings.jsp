@@ -8,16 +8,13 @@
         onSelect: function (sel) {
             switch (sel.value) {
                 case 'stash':
-                    $j('#${keys.serverUrl}').show();
                     $j('#${keys.serverUrl} input').val('');
                     break;
                 case 'github':
-                    $j('#${keys.serverUrl}').show();
                     $j('#${keys.serverUrl} input').val('https://api.github.com');
                     break;
                 case 'bitbucket':
-                    $j('#${keys.serverUrl}').hide();
-                    $j('#${keys.serverUrl} input').val('https://bitbucket.org');
+                    $j('#${keys.serverUrl} input').val('https://api.bitbucket.org');
             }
         }
     }
@@ -39,11 +36,11 @@
     </td>
 </tr>
 <tr id="${keys.serverUrl}">
-    <th>Server URL:<l:star/></th>
+    <th>API URL:<l:star/></th>
     <td>
         <props:textProperty name="${keys.serverUrl}" className="longField"/>
         <span class="error" id="error_${keys.serverUrl}"></span>
-        <span class="smallNote">Server URL</span>
+        <span class="smallNote">API Base URL</span>
     </td>
 </tr>
 <l:settingsGroup title="Authentication">
