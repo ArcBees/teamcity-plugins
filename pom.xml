@@ -17,7 +17,7 @@
     </modules>
 
     <properties>
-        <teamcity.version>8.1.2</teamcity.version>
+        <teamcity.version>10.0</teamcity.version>
         <openapi.version>7.0.3</openapi.version>
         <!-- Guava is provided by TeamCity, do not update version -->
         <guava.version>13.0.1</guava.version>
@@ -38,6 +38,10 @@
     </properties>
 
     <repositories>
+        <repository>
+            <id>teamcity-repository</id>
+            <url>http://download.jetbrains.com/teamcity-repository</url>
+        </repository>
         <repository>
             <id>jetbrains-all</id>
             <url>http://repository.jetbrains.com/all</url>
