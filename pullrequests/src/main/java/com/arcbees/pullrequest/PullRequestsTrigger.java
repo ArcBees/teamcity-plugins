@@ -16,6 +16,7 @@
 
 package com.arcbees.pullrequest;
 
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,6 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
     public void triggerBuild(@NotNull PolledTriggerContext context) throws BuildTriggerException {
         BuildTriggerDescriptor triggerDescriptor = context.getTriggerDescriptor();
         Map<String, String> properties = triggerDescriptor.getProperties();
-
         VcsPropertiesHelper vcsPropertiesHelper = new VcsPropertiesHelper(properties, vcsConstants);
         String repositoryOwner = vcsPropertiesHelper.getRepositoryOwner();
         String repositoryName = vcsPropertiesHelper.getRepositoryName();
@@ -129,17 +129,23 @@ public class PullRequestsTrigger extends PolledBuildTrigger {
 
         boolean added = false;
         if (!lastCommit.getHash().equals(lastTriggeredCommitHash)) {
-            addBuildTask(context, triggerTasks, source);
+            addBuildTask(context, triggerTasks, pullRequest);
             added = true;
         }
 
         return added;
     }
 
-    private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequestTarget source) {
+    private void addBuildTask(PolledTriggerContext context, List<TriggerTask> triggerTasks, PullRequest pullRequest) {
+        PullRequestTarget source = pullRequest.getSource();
         BuildTypeEx buildType = (BuildTypeEx) context.getBuildType();
+
         BuildCustomizer buildCustomizer = buildCustomizerFactory.createBuildCustomizer(buildType, null);
         buildCustomizer.setCleanSources(true);
+
+        Map<String, String> parameters = Maps.newHashMap();
+        parameters.put("trigger.pullRequestId", String.valueOf(pullRequest.getId()));
+        buildCustomizer.setParameters(parameters);
 
         BranchEx branch = buildType.getBranchByDisplayName(source.getBranch().getName());
         SVcsModification lastModification = checkChanges(source.getCommit().getHash(),
