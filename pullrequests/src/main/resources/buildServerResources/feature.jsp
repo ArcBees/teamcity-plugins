@@ -6,7 +6,10 @@
 <script>
     BS.EditTriggersDialog.serializeParameters = function () {
         var e = BS.Util.serializeForm(this.formElement());
-        var f = Form.getInputs(this.formElement(), "password");
+        var f = Form.getInputs(this.formElement())
+            .filter(function(input) {
+                return input.type === 'password' || input.hasAttribute('data-imitate-password');
+            });
         if (!f) {
             return e;
         }
